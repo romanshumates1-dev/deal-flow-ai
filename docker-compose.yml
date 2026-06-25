@@ -1,0 +1,250 @@
+# ============================================================
+# DealFlow AI — Production Docker Compose
+# Grounded in actual repo audit (June 2025)
+# ============================================================
+# Services:
+#   postgres  — primary database (Prisma / PostgreSQL 16)
+#   redis     — BullMQ queues + caching (ioredis)
+#   api       — Express/TypeScript API (src/index.ts)
+#   worker    — BullMQ workers (aiWorker, smsWorker, followUpWorker)
+#   nginx     — Reverse proxy + static frontend (dealflow_ai_platform.html)
+#
+# Networks: all services share "internal" network except nginx
+# which also joins "external" for ingress.
+# ============================================================
+
+version: "3.9"
+
+services:
+
+  # ─── PostgreSQL 16 ─────────────────────────────────────
+  postgres:
+    image: postgres:16-alpine
+    container_name: dealflow_postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB:-dealflow}
+      POSTGRES_USER: ${POSTGRES_USER:-dealflow}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      # Performance tuning for a 2–4 GB RAM host
+      POSTGRES_INITDB_ARGS: "--auth-host=scram-sha-256"
+    command: >
+      postgres
+        -c max_connections=100
+        -c shared_buffers=256MB
+        -c effective_cache_size=768MB
+        -c maintenance_work_mem=64MB
+        -c checkpoint_completion_target=0.9
+        -c wal_buffers=16MB
+        -c default_statistics_target=100
+        -c random_page_cost=1.1
+        -c effective_io_concurrency=200
+        -c work_mem=4MB
+        -c min_wal_size=1GB
+        -c max_wal_size=4GB
+        -c log_min_duration_statement=1000
+        -c log_line_prefix='%t [%p]: [%l-1] user=%u,db=%d,app=%a,client=%h '
+        -c log_checkpoints=on
+        -c log_connections=off
+        -c log_disconnections=off
+        -c log_lock_waits=on
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./docker/postgres/init:/docker-entrypoint-initdb.d:ro
+    networks:
+      - internal
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-dealflow} -d ${POSTGRES_DB:-dealflow}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 30s
+    # No external port exposure — only accessible via internal network
+    deploy:
+      resources:
+        limits:
+          memory: 512M
+
+  # ─── Redis 7 ───────────────────────────────────────────
+  redis:
+    image: redis:7-alpine
+    container_name: dealflow_redis
+    restart: unless-stopped
+    command: >
+      redis-server
+        --requirepass ${REDIS_PASSWORD}
+        --maxmemory 256mb
+        --maxmemory-policy allkeys-lru
+        --save 60 1000
+        --save 300 100
+        --save 900 1
+        --appendonly yes
+        --appendfsync everysec
+        --no-appendfsync-on-rewrite yes
+        --auto-aof-rewrite-percentage 100
+        --auto-aof-rewrite-min-size 64mb
+        --loglevel notice
+        --tcp-keepalive 300
+        --hz 15
+    volumes:
+      - redis_data:/data
+    networks:
+      - internal
+    healthcheck:
+      test: ["CMD", "redis-cli", "-a", "${REDIS_PASSWORD}", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 15s
+    deploy:
+      resources:
+        limits:
+          memory: 320M
+
+  # ─── API Service ───────────────────────────────────────
+  # Wraps existing src/index.ts. No redesign of routes or middleware.
+  api:
+    build:
+      context: .
+      dockerfile: docker/Dockerfile.api
+      target: production
+      args:
+        NODE_VERSION: "20"
+    container_name: dealflow_api
+    restart: unless-stopped
+    env_file: .env.production
+    environment:
+      # Override for Docker networking (internal hostnames)
+      DATABASE_URL: postgresql://${POSTGRES_USER:-dealflow}:${POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB:-dealflow}?schema=public&connection_limit=20&pool_timeout=20
+      REDIS_URL: redis://:${REDIS_PASSWORD}@redis:6379
+      NODE_ENV: production
+      PORT: 3001
+      # Worker mode: API only (no workers in this container)
+      RUN_WORKERS: "false"
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    networks:
+      - internal
+    healthcheck:
+      test: ["CMD-SHELL", "wget -qO- http://localhost:3001/health || exit 1"]
+      interval: 15s
+      timeout: 10s
+      retries: 3
+      start_period: 45s
+    deploy:
+      replicas: 1
+      resources:
+        limits:
+          memory: 512M
+      restart_policy:
+        condition: on-failure
+        delay: 10s
+        max_attempts: 3
+    # No external port — nginx handles all ingress
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "50m"
+        max-file: "5"
+        tag: "dealflow-api"
+
+  # ─── Worker Service ────────────────────────────────────
+  # Runs aiWorker, smsWorker, followUpWorker separately from API.
+  # Allows independent scaling and prevents AI call failures from
+  # blocking HTTP request handling.
+  worker:
+    build:
+      context: .
+      dockerfile: docker/Dockerfile.api
+      target: production
+      args:
+        NODE_VERSION: "20"
+    container_name: dealflow_worker
+    restart: unless-stopped
+    env_file: .env.production
+    environment:
+      DATABASE_URL: postgresql://${POSTGRES_USER:-dealflow}:${POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB:-dealflow}?schema=public&connection_limit=10&pool_timeout=20
+      REDIS_URL: redis://:${REDIS_PASSWORD}@redis:6379
+      NODE_ENV: production
+      # Worker mode: workers only (no HTTP server)
+      RUN_WORKERS: "true"
+      RUN_SERVER: "false"
+    # Worker entrypoint differs from API
+    command: ["node", "dist/workers/index.js"]
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+      api:
+        condition: service_healthy
+    networks:
+      - internal
+    healthcheck:
+      test: ["CMD-SHELL", "node -e \"require('./dist/workers/health').check()\" || exit 1"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 30s
+    deploy:
+      replicas: 1
+      resources:
+        limits:
+          memory: 512M
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "50m"
+        max-file: "5"
+        tag: "dealflow-worker"
+
+  # ─── Nginx (Reverse Proxy + Static Frontend) ───────────
+  nginx:
+    image: nginx:1.27-alpine
+    container_name: dealflow_nginx
+    restart: unless-stopped
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./docker/nginx/nginx.conf:/etc/nginx/nginx.conf:ro
+      - ./docker/nginx/conf.d:/etc/nginx/conf.d:ro
+      - ./frontend:/usr/share/nginx/html:ro      # dealflow_ai_platform.html
+      - ./docker/nginx/ssl:/etc/nginx/ssl:ro     # TLS certs (certbot / manual)
+      - nginx_logs:/var/log/nginx
+    depends_on:
+      - api
+    networks:
+      - internal
+      - external
+    healthcheck:
+      test: ["CMD-SHELL", "wget -qO- http://localhost/health || exit 1"]
+      interval: 15s
+      timeout: 5s
+      retries: 3
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "100m"
+        max-file: "5"
+        tag: "dealflow-nginx"
+
+# ─── Named Volumes ──────────────────────────────────────
+volumes:
+  postgres_data:
+    driver: local
+  redis_data:
+    driver: local
+  nginx_logs:
+    driver: local
+
+# ─── Networks ───────────────────────────────────────────
+networks:
+  internal:
+    driver: bridge
+    internal: true          # No direct internet access — only via nginx
+  external:
+    driver: bridge

@@ -1,0 +1,82 @@
+# ============================================================
+# DealFlow AI — Dockerfile (API + Worker)
+# Multi-stage: builder → production
+# Based on: package.json audit (tsx, tsc, node dist/index.js)
+# ============================================================
+
+ARG NODE_VERSION=20
+
+# ─── Stage 1: Dependencies ─────────────────────────────
+FROM node:${NODE_VERSION}-alpine AS deps
+
+WORKDIR /app
+
+# Install build tools for native modules (bcryptjs doesn't need them,
+# but better safe for any future additions)
+RUN apk add --no-cache python3 make g++
+
+# Copy only package manifests first (cache layer)
+COPY package.json package-lock.json* ./
+# Copy prisma schema so postinstall can generate client
+COPY schema.prisma ./prisma/schema.prisma
+
+RUN npm ci --omit=dev --ignore-scripts && \
+    # Generate Prisma client
+    npx prisma generate
+
+# ─── Stage 2: Builder (TypeScript compile) ─────────────
+FROM node:${NODE_VERSION}-alpine AS builder
+
+WORKDIR /app
+
+# Install ALL deps including devDeps (needed for tsc)
+COPY package.json package-lock.json* ./
+COPY schema.prisma ./prisma/schema.prisma
+
+RUN npm ci --ignore-scripts && \
+    npx prisma generate
+
+# Copy source
+COPY tsconfig.json ./
+COPY src ./src
+
+# Compile TypeScript → dist/
+RUN npm run build
+
+# ─── Stage 3: Production ───────────────────────────────
+FROM node:${NODE_VERSION}-alpine AS production
+
+# Security: run as non-root user
+RUN addgroup -g 1001 -S dealflow && \
+    adduser -S -u 1001 -G dealflow dealflow
+
+WORKDIR /app
+
+# Set NODE_ENV
+ENV NODE_ENV=production
+ENV PORT=3001
+
+# Copy production node_modules from deps stage
+COPY --from=deps --chown=dealflow:dealflow /app/node_modules ./node_modules
+
+# Copy compiled output from builder stage
+COPY --from=builder --chown=dealflow:dealflow /app/dist ./dist
+
+# Copy Prisma schema + generated client
+COPY --from=deps --chown=dealflow:dealflow /app/node_modules/.prisma ./node_modules/.prisma
+COPY --chown=dealflow:dealflow schema.prisma ./prisma/schema.prisma
+
+# Copy package.json (runtime needs it for __dirname resolution)
+COPY --chown=dealflow:dealflow package.json ./
+
+USER dealflow
+
+EXPOSE 3001
+
+# Default: run the API server
+# Worker containers override CMD in docker-compose.yml
+CMD ["node", "dist/index.js"]
+
+# Health check (lightweight — actual healthcheck done by compose)
+HEALTHCHECK --interval=30s --timeout=10s --start-period=40s --retries=3 \
+  CMD wget -qO- http://localhost:3001/health || exit 1
