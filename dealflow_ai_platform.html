@@ -1,0 +1,3183 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>DealFlow AI — Wholesale Automation Platform</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@2.44.0/tabler-icons.min.css">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
+<style>
+/* ─── RESET & BASE ─── */
+*{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#0f0f13;--surface:#16161e;--card:#1c1c26;--card2:#212130;
+  --border:#2d2d40;--border2:#3a3a50;
+  --accent:#6c63ff;--accent2:#8b5cf6;--accent-glow:rgba(108,99,255,0.18);
+  --green:#22c55e;--green-bg:rgba(34,197,94,0.1);--green-border:rgba(34,197,94,0.3);
+  --amber:#f59e0b;--amber-bg:rgba(245,158,11,0.1);--amber-border:rgba(245,158,11,0.3);
+  --red:#ef4444;--red-bg:rgba(239,68,68,0.1);--red-border:rgba(239,68,68,0.3);
+  --blue:#3b82f6;--blue-bg:rgba(59,130,246,0.1);--blue-border:rgba(59,130,246,0.3);
+  --text:#e2e2f0;--text2:#9898b8;--text3:#5a5a7a;
+  --radius:8px;--radius2:12px;--radius3:16px;
+  --font:'Inter',system-ui,sans-serif;--mono:'JetBrains Mono','Fira Code',monospace;
+  --sidebar:220px;
+}
+html,body{height:100%;background:var(--bg);color:var(--text);font-family:var(--font);font-size:13px;line-height:1.5;overflow:hidden}
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+
+/* ─── LAYOUT ─── */
+.shell{display:flex;height:100vh;overflow:hidden}
+.sidebar{width:var(--sidebar);background:var(--surface);border-right:1px solid var(--border);display:flex;flex-direction:column;flex-shrink:0;overflow-y:auto}
+.main{flex:1;display:flex;flex-direction:column;overflow:hidden;background:var(--bg)}
+.topbar{padding:12px 20px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;flex-shrink:0;background:var(--bg)}
+.content{flex:1;overflow-y:auto;padding:20px}
+
+/* ─── SIDEBAR ─── */
+.logo{padding:16px 16px 12px;border-bottom:1px solid var(--border)}
+.logo-mark{font-size:15px;font-weight:700;letter-spacing:-0.3px;background:linear-gradient(135deg,var(--accent),var(--accent2));-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+.logo-sub{font-size:10px;color:var(--text3);margin-top:1px;letter-spacing:0.3px;text-transform:uppercase}
+nav{flex:1;padding:10px 8px}
+.nav-sec{font-size:10px;color:var(--text3);padding:10px 8px 4px;text-transform:uppercase;letter-spacing:0.06em;font-weight:500}
+.nav-item{display:flex;align-items:center;gap:9px;padding:7px 10px;border-radius:var(--radius);font-size:12px;cursor:pointer;color:var(--text2);margin-bottom:1px;transition:all 0.12s;font-weight:400;position:relative}
+.nav-item:hover{background:var(--card);color:var(--text)}
+.nav-item.active{background:var(--accent-glow);color:var(--text);font-weight:500}
+.nav-item.active::before{content:'';position:absolute;left:0;top:20%;bottom:20%;width:2.5px;background:var(--accent);border-radius:0 2px 2px 0}
+.nav-item i{font-size:15px;flex-shrink:0;opacity:0.8}
+.nav-item.active i{opacity:1}
+.nbadge{margin-left:auto;background:var(--red);color:#fff;font-size:9px;padding:1px 5px;border-radius:99px;font-weight:600;min-width:16px;text-align:center}
+.ai-footer{padding:12px 14px;border-top:1px solid var(--border)}
+.ai-status{display:flex;align-items:center;gap:7px;font-size:11px;color:var(--text2)}
+.pulse{width:6px;height:6px;border-radius:50%;background:var(--green);animation:pulse 2.2s ease-in-out infinite}
+@keyframes pulse{0%,100%{opacity:1;transform:scale(1)}50%{opacity:0.4;transform:scale(0.85)}}
+.ai-convos{font-size:10px;color:var(--text3);margin-top:2px}
+
+/* ─── TOPBAR ─── */
+.page-title{font-size:14px;font-weight:600;letter-spacing:-0.2px}
+.page-sub{font-size:11px;color:var(--text3);margin-top:1px}
+.topbar-right{display:flex;align-items:center;gap:8px}
+
+/* ─── BUTTONS ─── */
+.btn{display:inline-flex;align-items:center;gap:6px;padding:6px 13px;border-radius:var(--radius);font-size:12px;font-weight:500;cursor:pointer;border:1px solid var(--border);background:transparent;color:var(--text);transition:all 0.12s;font-family:var(--font)}
+.btn:hover{background:var(--card2);border-color:var(--border2)}
+.btn:active{transform:scale(0.98)}
+.btn-primary{background:var(--accent);color:#fff;border-color:var(--accent)}
+.btn-primary:hover{background:#7c75ff;border-color:#7c75ff}
+.btn-success{border-color:var(--green-border);color:var(--green)}
+.btn-success:hover{background:var(--green-bg)}
+.btn-danger{border-color:var(--red-border);color:var(--red)}
+.btn-danger:hover{background:var(--red-bg)}
+.btn-amber{border-color:var(--amber-border);color:var(--amber)}
+.btn-amber:hover{background:var(--amber-bg)}
+.btn-sm{padding:4px 10px;font-size:11px}
+.btn-xs{padding:3px 8px;font-size:10px}
+.btn-icon{padding:6px;border-radius:var(--radius)}
+.btn:disabled{opacity:0.4;cursor:not-allowed;pointer-events:none}
+
+/* ─── CARDS & GRIDS ─── */
+.card{background:var(--card);border:1px solid var(--border);border-radius:var(--radius2);padding:16px;margin-bottom:14px}
+.card-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:14px}
+.card-title{font-size:13px;font-weight:600}
+.card-sub{font-size:11px;color:var(--text2);margin-top:1px}
+.grid-4{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:14px}
+.grid-3{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:14px}
+.grid-2{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:14px}
+.metric-card{background:var(--card);border:1px solid var(--border);border-radius:var(--radius2);padding:14px}
+.metric-label{font-size:11px;color:var(--text2);margin-bottom:5px}
+.metric-value{font-size:24px;font-weight:700;letter-spacing:-0.5px;line-height:1}
+.metric-delta{font-size:10px;margin-top:5px;color:var(--text3)}
+.metric-up{color:var(--green)}
+.metric-down{color:var(--red)}
+
+/* ─── PIPELINE ─── */
+.pipeline-bar{height:6px;border-radius:99px;overflow:hidden;display:flex;margin-bottom:10px}
+.pip-seg{height:100%;transition:width 0.4s}
+.legend{display:flex;gap:14px;flex-wrap:wrap;font-size:10px;color:var(--text2);margin-top:4px}
+.legend-item{display:flex;align-items:center;gap:5px}
+.ldot{width:7px;height:7px;border-radius:50%}
+
+/* ─── TABLES ─── */
+table{width:100%;border-collapse:collapse;font-size:12px}
+th{text-align:left;color:var(--text3);font-weight:500;padding:7px 10px;border-bottom:1px solid var(--border);font-size:10px;text-transform:uppercase;letter-spacing:0.04em}
+td{padding:9px 10px;border-bottom:1px solid var(--border);vertical-align:middle;color:var(--text)}
+tr:last-child td{border-bottom:none}
+tr:hover td{background:rgba(255,255,255,0.02)}
+.table-wrap{border:1px solid var(--border);border-radius:var(--radius2);overflow:hidden;background:var(--card)}
+
+/* ─── BADGES ─── */
+.badge{display:inline-flex;align-items:center;gap:4px;padding:3px 9px;border-radius:99px;font-size:10px;font-weight:600;letter-spacing:0.02em}
+.badge-new{background:var(--blue-bg);color:var(--blue);border:1px solid var(--blue-border)}
+.badge-warm{background:var(--amber-bg);color:var(--amber);border:1px solid var(--amber-border)}
+.badge-negotiating{background:rgba(139,92,246,0.12);color:#a78bfa;border:1px solid rgba(139,92,246,0.3)}
+.badge-cold{background:var(--card2);color:var(--text3);border:1px solid var(--border)}
+.badge-done{background:var(--green-bg);color:var(--green);border:1px solid var(--green-border)}
+.badge-lost{background:var(--red-bg);color:var(--red);border:1px solid var(--red-border)}
+.badge-follow{background:var(--amber-bg);color:var(--amber);border:1px solid var(--amber-border)}
+.badge-pending{background:var(--amber-bg);color:var(--amber);border:1px solid var(--amber-border)}
+.badge-active{background:var(--blue-bg);color:var(--blue);border:1px solid var(--blue-border)}
+.badge-assigned{background:var(--green-bg);color:var(--green);border:1px solid var(--green-border)}
+
+/* ─── FORMS ─── */
+.form-group{margin-bottom:12px}
+.form-label{font-size:11px;color:var(--text2);margin-bottom:5px;display:block;font-weight:500}
+.form-row{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+input,textarea,select{width:100%;border:1px solid var(--border);border-radius:var(--radius);padding:8px 11px;font-size:12px;background:var(--surface);color:var(--text);font-family:var(--font);transition:border-color 0.15s}
+input:focus,textarea:focus,select:focus{outline:none;border-color:var(--accent)}
+textarea{resize:vertical;min-height:80px;line-height:1.5}
+select option{background:var(--surface)}
+input::placeholder,textarea::placeholder{color:var(--text3)}
+
+/* ─── CHAT ─── */
+.chat-area{display:flex;flex-direction:column;gap:6px;max-height:300px;overflow-y:auto;padding:12px;background:var(--surface);border-radius:var(--radius);border:1px solid var(--border);margin-bottom:10px}
+.chat-row{display:flex;flex-direction:column}
+.chat-row.right{align-items:flex-end}
+.chat-meta{font-size:9px;color:var(--text3);margin-bottom:3px;padding:0 4px}
+.bubble{max-width:86%;padding:9px 13px;border-radius:12px;font-size:12px;line-height:1.55}
+.bubble-ai{background:var(--card2);border:1px solid var(--border);color:var(--text);border-radius:4px 12px 12px 12px}
+.bubble-prospect{background:var(--blue-bg);border:1px solid var(--blue-border);color:var(--text);border-radius:12px 4px 12px 12px}
+.bubble-owner{background:var(--accent);color:#fff;border-radius:12px 4px 12px 12px}
+.typing-indicator{display:flex;align-items:center;gap:4px;padding:10px 13px;background:var(--card2);border:1px solid var(--border);border-radius:4px 12px 12px 12px;width:fit-content}
+.typing-dot{width:5px;height:5px;border-radius:50%;background:var(--text3);animation:blink 1.2s infinite}
+.typing-dot:nth-child(2){animation-delay:0.2s}
+.typing-dot:nth-child(3){animation-delay:0.4s}
+@keyframes blink{0%,80%,100%{opacity:0.2}40%{opacity:1}}
+
+/* ─── SCORE RING ─── */
+.score-ring{width:40px;height:40px;border-radius:50%;border:2px solid;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;flex-shrink:0}
+.score-hot{border-color:var(--green);color:var(--green)}
+.score-warm{border-color:var(--amber);color:var(--amber)}
+.score-cold{border-color:var(--text3);color:var(--text3)}
+
+/* ─── MODALS ─── */
+.modal-backdrop{position:absolute;inset:0;background:rgba(0,0,0,0.65);display:none;align-items:center;justify-content:center;z-index:200;border-radius:var(--radius2)}
+.modal-backdrop.open{display:flex}
+.modal{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius2);padding:22px;width:460px;max-width:95%;max-height:85vh;overflow-y:auto}
+.modal-title{font-size:14px;font-weight:600;margin-bottom:16px;display:flex;align-items:center;gap:8px}
+.modal-footer{display:flex;gap:8px;justify-content:flex-end;margin-top:16px;padding-top:14px;border-top:1px solid var(--border)}
+
+/* ─── TABS ─── */
+.tab-bar{display:flex;gap:0;margin-bottom:14px;border-bottom:1px solid var(--border)}
+.tab{padding:9px 15px;font-size:12px;cursor:pointer;color:var(--text2);border-bottom:2px solid transparent;margin-bottom:-1px;transition:all 0.12s;font-weight:400}
+.tab:hover{color:var(--text)}
+.tab.active{color:var(--text);font-weight:500;border-bottom-color:var(--accent)}
+
+/* ─── PAGES ─── */
+.page{display:none}
+.page.active{display:block}
+
+/* ─── ACTIVITY ─── */
+.activity-item{display:flex;gap:10px;padding:9px 0;border-bottom:1px solid var(--border);align-items:flex-start}
+.activity-item:last-child{border-bottom:none}
+.act-icon{width:28px;height:28px;border-radius:50%;display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:13px}
+.act-text{flex:1;font-size:12px;line-height:1.4;color:var(--text)}
+.act-time{font-size:10px;color:var(--text3);margin-top:2px}
+
+/* ─── NOTIFICATION ─── */
+.notif-item{border-radius:var(--radius);padding:12px 14px;margin-bottom:10px;border:1px solid}
+.notif-title{font-weight:600;font-size:12px;margin-bottom:5px;display:flex;align-items:center;gap:7px}
+.notif-body{font-size:12px;line-height:1.55;color:var(--text2)}
+.notif-actions{display:flex;gap:7px;margin-top:10px}
+.notif-warn{background:var(--amber-bg);border-color:var(--amber-border)}
+.notif-warn .notif-title{color:var(--amber)}
+.notif-success{background:var(--green-bg);border-color:var(--green-border)}
+.notif-success .notif-title{color:var(--green)}
+.notif-info{background:var(--blue-bg);border-color:var(--blue-border)}
+.notif-info .notif-title{color:var(--blue)}
+.notif-danger{background:var(--red-bg);border-color:var(--red-border)}
+.notif-danger .notif-title{color:var(--red)}
+
+/* ─── STEP FLOW ─── */
+.step-flow{display:flex;align-items:center;gap:6px;margin-bottom:18px;overflow-x:auto;padding-bottom:4px}
+.step-node{display:flex;flex-direction:column;align-items:center;gap:4px;flex-shrink:0}
+.step-circle{width:28px;height:28px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:600;border:1px solid var(--border);color:var(--text3);background:var(--card)}
+.step-circle.active{background:var(--accent);color:#fff;border-color:var(--accent)}
+.step-circle.done{background:var(--green-bg);color:var(--green);border-color:var(--green-border)}
+.step-lbl{font-size:10px;color:var(--text3);text-align:center;max-width:60px;line-height:1.3}
+.step-arrow{color:var(--text3);font-size:12px;flex-shrink:0}
+
+/* ─── PROGRESS ─── */
+.progress-bar{height:4px;border-radius:99px;background:var(--card2);overflow:hidden}
+.progress-fill{height:100%;border-radius:99px;transition:width 0.4s}
+
+/* ─── CHART ─── */
+.chart-container{position:relative;width:100%;height:170px}
+
+/* ─── TOAST ─── */
+#toast{position:absolute;bottom:20px;right:20px;background:var(--card2);border:1px solid var(--border);color:var(--text);padding:11px 16px;border-radius:var(--radius);font-size:12px;max-width:300px;display:none;z-index:999;box-shadow:0 8px 32px rgba(0,0,0,0.4);line-height:1.5}
+#toast.toast-success{border-color:var(--green-border);background:var(--green-bg)}
+#toast.toast-error{border-color:var(--red-border);background:var(--red-bg)}
+#toast.toast-info{border-color:var(--blue-border);background:var(--blue-bg)}
+
+/* ─── CONVO LIST ─── */
+.convo-row{padding:11px 14px;border-bottom:1px solid var(--border);cursor:pointer;transition:background 0.1s}
+.convo-row:hover,.convo-row.selected{background:var(--card2)}
+.convo-row:last-child{border-bottom:none}
+
+/* ─── AI BANNER ─── */
+.ai-thinking{background:var(--accent-glow);border:1px solid rgba(108,99,255,0.3);border-radius:var(--radius);padding:9px 13px;font-size:12px;color:#a78bfa;display:flex;align-items:center;gap:8px;margin-bottom:10px}
+
+/* ─── FLAGGED BANNER ─── */
+.flagged-banner{background:var(--amber-bg);border:1px solid var(--amber-border);border-radius:var(--radius);padding:12px 14px;margin-bottom:14px;font-size:12px}
+
+/* ─── SCROLLBAR ─── */
+::-webkit-scrollbar{width:5px;height:5px}
+::-webkit-scrollbar-track{background:transparent}
+::-webkit-scrollbar-thumb{background:var(--border2);border-radius:99px}
+::-webkit-scrollbar-thumb:hover{background:var(--text3)}
+
+/* ─── UPLOAD DROP ─── */
+.dropzone{border:1px dashed var(--border2);border-radius:var(--radius);padding:22px;text-align:center;color:var(--text3);cursor:pointer;transition:all 0.15s}
+.dropzone:hover{border-color:var(--accent);color:var(--accent);background:var(--accent-glow)}
+.dropzone i{font-size:22px;display:block;margin-bottom:8px}
+
+/* ─── AI OVERLAY ─── */
+.ai-loading{position:absolute;inset:0;background:rgba(15,15,19,0.85);display:none;align-items:center;justify-content:center;z-index:150;border-radius:var(--radius2);flex-direction:column;gap:12px}
+.ai-loading.show{display:flex}
+.ai-spinner{width:36px;height:36px;border:2px solid var(--border);border-top-color:var(--accent);border-radius:50%;animation:spin 0.7s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+
+/* ─── DIVIDER ─── */
+.divider{border:none;border-top:1px solid var(--border);margin:14px 0}
+
+/* ─── INPUT SEND ROW ─── */
+.send-row{display:flex;gap:8px;align-items:flex-end}
+.send-row textarea{min-height:38px;max-height:100px;resize:none}
+
+/* ─── CONVO DETAIL HEADER ─── */
+.convo-detail-header{border-bottom:1px solid var(--border);padding-bottom:12px;margin-bottom:12px}
+
+/* ─── TAG ─── */
+.tag{display:inline-flex;align-items:center;gap:4px;padding:2px 8px;border-radius:4px;font-size:10px;background:var(--card2);color:var(--text2);border:1px solid var(--border);margin:2px}
+
+/* ─── CONTRACT CARD ─── */
+.contract-card{background:var(--card2);border:1px solid var(--border);border-radius:var(--radius);padding:12px;margin-bottom:8px;display:flex;align-items:center;justify-content:space-between;gap:12px}
+
+/* ─── MOBILE-ISH ─── */
+@media(max-width:900px){
+  .grid-4{grid-template-columns:1fr 1fr}
+  .grid-2{grid-template-columns:1fr}
+  :root{--sidebar:48px}
+  .nav-item span{display:none}
+  .nav-sec{display:none}
+  .logo-sub{display:none}
+}
+</style>
+</head>
+<body>
+
+<div class="shell" id="app" style="position:relative">
+
+  <!-- ══════ SIDEBAR ══════ -->
+  <div class="sidebar">
+    <div class="logo">
+      <div class="logo-mark">DealFlow AI</div>
+      <div class="logo-sub">Wholesale Automation</div>
+    </div>
+    <nav>
+      <div class="nav-sec">Acquisition</div>
+      <div class="nav-item active" data-page="dashboard" onclick="nav('dashboard')"><i class="ti ti-layout-dashboard"></i> <span>Dashboard</span></div>
+      <div class="nav-item" data-page="intake" onclick="nav('intake')"><i class="ti ti-upload"></i> <span>Import Leads</span></div>
+      <div class="nav-item" data-page="prospects" onclick="nav('prospects')"><i class="ti ti-users"></i> <span>Seller Leads</span> <span class="nbadge" id="nb-warm">0</span></div>
+      <div class="nav-item" data-page="conversations" onclick="nav('conversations')"><i class="ti ti-message-2"></i> <span>Conversations</span></div>
+      <div class="nav-sec">Disposition</div>
+      <div class="nav-item" data-page="contracts" onclick="nav('contracts')"><i class="ti ti-file-text"></i> <span>Contracts</span> <span class="nbadge" id="nb-contracts">0</span></div>
+      <div class="nav-item" data-page="buyers" onclick="nav('buyers')"><i class="ti ti-building"></i> <span>Buyer Leads</span></div>
+      <div class="nav-sec">Reports</div>
+      <div class="nav-item" data-page="analytics" onclick="nav('analytics')"><i class="ti ti-chart-bar"></i> <span>Analytics</span></div>
+      <div class="nav-item" data-page="notifications" onclick="nav('notifications')"><i class="ti ti-bell"></i> <span>Notifications</span> <span class="nbadge" id="nb-notif">0</span></div>
+      <div class="nav-sec">System</div>
+      <div class="nav-item" data-page="settings" onclick="nav('settings')"><i class="ti ti-settings"></i> <span>SMS Gateway</span> <span id="gw-dot" style="margin-left:auto;width:7px;height:7px;border-radius:50%;background:var(--text3);flex-shrink:0"></span></div>
+    </nav>
+    <div class="ai-footer">
+      <div class="ai-status"><span class="pulse"></span> <span id="ai-mode-label">Demo Mode</span></div>
+      <div class="ai-convos" id="ai-convo-count">0 active conversations</div>
+      <div class="ai-convos" id="gw-status-label" style="font-size:10px;margin-top:2px;color:var(--text3)">No backend connected</div>
+    </div>
+  </div>
+
+  <!-- ══════ MAIN ══════ -->
+  <div class="main">
+    <div class="topbar">
+      <div>
+        <div class="page-title" id="page-title">Dashboard</div>
+        <div class="page-sub" id="page-sub">Real-time wholesale pipeline overview</div>
+      </div>
+      <div class="topbar-right">
+        <button class="btn btn-sm" onclick="openModal('importModal')"><i class="ti ti-plus"></i> Add Leads</button>
+        <button class="btn btn-sm btn-primary" onclick="nav('intake')"><i class="ti ti-rocket"></i> New Campaign</button>
+      </div>
+    </div>
+
+    <div class="content">
+
+      <!-- ══ DASHBOARD ══ -->
+      <div class="page active" id="page-dashboard">
+        <div class="grid-4">
+          <div class="metric-card">
+            <div class="metric-label">Sellers Contacted</div>
+            <div class="metric-value" id="m-contacted">0</div>
+            <div class="metric-delta metric-up" id="m-contacted-d"></div>
+          </div>
+          <div class="metric-card">
+            <div class="metric-label">Interested Sellers</div>
+            <div class="metric-value" id="m-interested">0</div>
+            <div class="metric-delta" id="m-resp-rate"></div>
+          </div>
+          <div class="metric-card">
+            <div class="metric-label">Under Negotiation</div>
+            <div class="metric-value" id="m-negotiating">0</div>
+            <div class="metric-delta metric-up" id="m-neg-d"></div>
+          </div>
+          <div class="metric-card">
+            <div class="metric-label">Assignment Revenue</div>
+            <div class="metric-value" id="m-revenue">$0</div>
+            <div class="metric-delta" id="m-rev-d"></div>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="card-header">
+            <div><div class="card-title">Acquisition Pipeline</div><div class="card-sub" id="pipeline-total">0 total seller leads</div></div>
+          </div>
+          <div class="pipeline-bar" id="pipeline-bar">
+            <div class="pip-seg" style="background:#3b82f6;width:0%" id="pip-new"></div>
+            <div class="pip-seg" style="background:#f59e0b;width:0%" id="pip-warm"></div>
+            <div class="pip-seg" style="background:#8b5cf6;width:0%" id="pip-neg"></div>
+            <div class="pip-seg" style="background:#22c55e;width:0%" id="pip-done"></div>
+            <div class="pip-seg" style="background:#ef4444;width:0%" id="pip-lost"></div>
+          </div>
+          <div class="legend">
+            <span class="legend-item"><span class="ldot" style="background:#3b82f6"></span><span id="leg-new">New (0)</span></span>
+            <span class="legend-item"><span class="ldot" style="background:#f59e0b"></span><span id="leg-warm">Warm (0)</span></span>
+            <span class="legend-item"><span class="ldot" style="background:#8b5cf6"></span><span id="leg-neg">Negotiating (0)</span></span>
+            <span class="legend-item"><span class="ldot" style="background:#22c55e"></span><span id="leg-done">Contracted (0)</span></span>
+            <span class="legend-item"><span class="ldot" style="background:#ef4444"></span><span id="leg-lost">Not Interested (0)</span></span>
+          </div>
+        </div>
+
+        <div class="grid-2">
+          <div class="card">
+            <div class="card-header"><div class="card-title">Needs Your Attention</div></div>
+            <div id="dash-attention"><div style="font-size:12px;color:var(--text3);text-align:center;padding:20px">No pending actions — all good!</div></div>
+          </div>
+          <div class="card">
+            <div class="card-header"><div class="card-title">Recent Activity</div></div>
+            <div id="dash-activity"><div style="font-size:12px;color:var(--text3);text-align:center;padding:20px">No activity yet. Import leads to get started.</div></div>
+          </div>
+        </div>
+
+        <div class="grid-2">
+          <div class="card">
+            <div class="card-header"><div class="card-title">Buyer Pipeline</div><div class="card-sub">Assignment fee tracking</div></div>
+            <div class="metric-card" style="margin-bottom:8px;border:none;background:var(--card2);padding:10px">
+              <div class="metric-label">Buyers in Pipeline</div>
+              <div class="metric-value" id="m-buyers">0</div>
+            </div>
+            <div class="metric-card" style="border:none;background:var(--card2);padding:10px">
+              <div class="metric-label">Assignment Fees Earned</div>
+              <div class="metric-value" id="m-fees">$0</div>
+            </div>
+          </div>
+          <div class="card">
+            <div class="card-header"><div class="card-title">Negotiation Performance</div></div>
+            <div style="display:flex;justify-content:space-between;margin-bottom:7px;font-size:12px"><span style="color:var(--text2)">In-range deal rate</span><span id="perf-range" style="font-weight:600">—</span></div>
+            <div class="progress-bar" style="margin-bottom:12px"><div class="progress-fill" id="perf-range-bar" style="width:0%;background:var(--accent)"></div></div>
+            <div style="display:flex;justify-content:space-between;margin-bottom:7px;font-size:12px"><span style="color:var(--text2)">Follow-up response rate</span><span id="perf-followup" style="font-weight:600">—</span></div>
+            <div class="progress-bar"><div class="progress-fill" id="perf-followup-bar" style="width:0%;background:var(--amber)"></div></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ══ IMPORT LEADS ══ -->
+      <div class="page" id="page-intake">
+        <div class="step-flow" id="intake-steps">
+          <div class="step-node"><div class="step-circle active" id="sc1">1</div><div class="step-lbl">Paste Leads</div></div>
+          <div class="step-arrow">→</div>
+          <div class="step-node"><div class="step-circle" id="sc2">2</div><div class="step-lbl">Configure AI</div></div>
+          <div class="step-arrow">→</div>
+          <div class="step-node"><div class="step-circle" id="sc3">3</div><div class="step-lbl">Set Prices</div></div>
+          <div class="step-arrow">→</div>
+          <div class="step-node"><div class="step-circle" id="sc4">4</div><div class="step-lbl">Launch</div></div>
+        </div>
+
+        <div class="grid-2">
+          <!-- Seller Import -->
+          <div class="card">
+            <div class="card-header"><div class="card-title"><i class="ti ti-upload"></i> Upload Seller Leads</div></div>
+            <div class="form-group">
+              <div class="form-label">Paste phone numbers — one per line, or comma-separated. Include names optionally (Name, Phone).</div>
+              <textarea id="sellerInput" placeholder="Marcus Johnson, (502) 555-0101&#10;(502) 555-0178&#10;David Park, (502) 555-0234&#10;..." style="min-height:120px;font-family:var(--mono);font-size:11px"></textarea>
+            </div>
+            <div class="form-group">
+              <div class="form-label">Campaign name</div>
+              <input type="text" id="campaign-name" placeholder="Louisville East — June 2026" value="Campaign 1">
+            </div>
+            <div class="form-row">
+              <div class="form-group">
+                <div class="form-label">Initial lowball offer (% of ARV)</div>
+                <input type="number" id="lowball-pct" value="65" min="40" max="85" placeholder="65">
+              </div>
+              <div class="form-group">
+                <div class="form-label">Max follow-ups per lead</div>
+                <input type="number" id="max-followups" value="5" min="1" max="10">
+              </div>
+            </div>
+            <div class="form-group">
+              <div class="form-label">AI persona name (shown to prospects)</div>
+              <input type="text" id="ai-persona" value="Alex" placeholder="Alex">
+            </div>
+            <div class="form-group">
+              <div class="form-label">Company name</div>
+              <input type="text" id="company-name" value="HomeFlex Acquisitions" placeholder="HomeFlex Acquisitions">
+            </div>
+            <div class="form-group">
+              <div class="form-label">Opening message tone</div>
+              <select id="msg-tone">
+                <option value="professional">Professional &amp; direct</option>
+                <option value="friendly">Friendly &amp; conversational</option>
+                <option value="formal">Formal / Harvard-style</option>
+              </select>
+            </div>
+            <button class="btn btn-primary" style="width:100%;justify-content:center" onclick="launchSellerCampaign()"><i class="ti ti-rocket"></i> Parse &amp; Launch Seller Outreach</button>
+          </div>
+
+          <!-- Buyer Import -->
+          <div>
+            <div class="card">
+              <div class="card-header"><div class="card-title"><i class="ti ti-building"></i> Upload Buyer Leads</div></div>
+              <div class="form-group">
+                <div class="form-label">Paste buyer/investor phone numbers</div>
+                <textarea id="buyerInput" placeholder="(502) 555-0312&#10;Premier Investments LLC, (502) 555-0811&#10;..." style="font-family:var(--mono);font-size:11px"></textarea>
+              </div>
+              <div class="form-group">
+                <div class="form-label">Contract to pitch</div>
+                <select id="buyer-contract-select"></select>
+              </div>
+              <div class="form-row">
+                <div class="form-group">
+                  <div class="form-label">Min assignment fee ($)</div>
+                  <input type="number" id="buyer-fee-min" placeholder="8000" value="8000">
+                </div>
+                <div class="form-group">
+                  <div class="form-label">Max assignment fee ($)</div>
+                  <input type="number" id="buyer-fee-max" placeholder="15000" value="15000">
+                </div>
+              </div>
+              <button class="btn btn-primary" style="width:100%;justify-content:center" onclick="launchBuyerCampaign()"><i class="ti ti-rocket"></i> Launch Buyer Outreach</button>
+            </div>
+
+            <div class="card">
+              <div class="card-header"><div class="card-title">AI Script Preview</div><div class="card-sub">Auto-generated from your settings</div></div>
+              <div id="script-preview" style="background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:12px;font-size:11px;color:var(--text2);line-height:1.65;font-style:italic">Configure settings above to preview your AI opening message.</div>
+              <button class="btn btn-sm" style="margin-top:10px" onclick="refreshScriptPreview()"><i class="ti ti-refresh"></i> Refresh Preview</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ══ PROSPECTS ══ -->
+      <div class="page" id="page-prospects">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px">
+          <div></div>
+          <div style="display:flex;gap:8px">
+            <button class="btn btn-sm" onclick="exportCSV('sellers')"><i class="ti ti-download"></i> Export CSV</button>
+          </div>
+        </div>
+        <div class="tab-bar">
+          <div class="tab active" onclick="switchTab(this,'tab-sellers')">All Sellers (<span id="tc-all">0</span>)</div>
+          <div class="tab" onclick="switchTab(this,'tab-flagged')">⚡ Action Needed (<span id="tc-flagged">0</span>)</div>
+          <div class="tab" onclick="switchTab(this,'tab-removed')">Removed (<span id="tc-removed">0</span>)</div>
+        </div>
+
+        <div id="tab-sellers" class="tab-content">
+          <div class="table-wrap">
+            <table>
+              <thead><tr><th>Score</th><th>Contact</th><th>Property</th><th>Status</th><th>Stage</th><th>Last Msg</th><th>Actions</th></tr></thead>
+              <tbody id="seller-table-body"></tbody>
+            </table>
+          </div>
+        </div>
+
+        <div id="tab-flagged" class="tab-content" style="display:none">
+          <div class="card">
+            <div class="card-header"><div class="card-title">Needs Your Price Range</div><div class="card-sub">Set min/max purchase price so AI can begin negotiating</div></div>
+            <div id="flagged-list"><div style="color:var(--text3);font-size:12px;padding:12px 0">No leads awaiting price range.</div></div>
+          </div>
+        </div>
+
+        <div id="tab-removed" class="tab-content" style="display:none">
+          <div class="card">
+            <div style="font-size:12px;color:var(--text3);margin-bottom:12px">These prospects confirmed they are not interested. AI politely closed the conversation and left the door open. If they re-engage, they are automatically reinstated.</div>
+            <div id="removed-list"><div style="color:var(--text3);font-size:12px;padding:8px 0">No removed leads yet.</div></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ══ CONVERSATIONS ══ -->
+      <div class="page" id="page-conversations">
+        <div style="display:grid;grid-template-columns:280px 1fr;gap:14px;height:calc(100vh - 120px)">
+          <!-- Left: convo list -->
+          <div style="display:flex;flex-direction:column;gap:0;background:var(--card);border:1px solid var(--border);border-radius:var(--radius2);overflow:hidden">
+            <div style="padding:12px 14px;font-size:12px;font-weight:600;border-bottom:1px solid var(--border);display:flex;justify-content:space-between;align-items:center">
+              <span>Conversations</span>
+              <select id="convo-filter" style="width:auto;font-size:11px;padding:4px 8px" onchange="renderConvoList()">
+                <option value="all">All</option>
+                <option value="seller">Sellers</option>
+                <option value="buyer">Buyers</option>
+                <option value="negotiating">Negotiating</option>
+              </select>
+            </div>
+            <div style="flex:1;overflow-y:auto" id="convo-list"></div>
+          </div>
+          <!-- Right: convo detail -->
+          <div style="display:flex;flex-direction:column;background:var(--card);border:1px solid var(--border);border-radius:var(--radius2);overflow:hidden">
+            <div id="convo-detail-wrap" style="flex:1;overflow-y:auto;padding:16px;display:flex;flex-direction:column">
+              <div id="convo-placeholder" style="flex:1;display:flex;align-items:center;justify-content:center;color:var(--text3);font-size:13px">
+                Select a conversation
+              </div>
+              <div id="convo-detail" style="display:none;flex:1;flex-direction:column">
+                <div class="convo-detail-header">
+                  <div style="display:flex;justify-content:space-between;align-items:flex-start">
+                    <div>
+                      <div style="font-size:14px;font-weight:600" id="cd-name">—</div>
+                      <div style="font-size:11px;color:var(--text2);margin-top:2px" id="cd-meta">—</div>
+                    </div>
+                    <div id="cd-badge"></div>
+                  </div>
+                </div>
+                <div class="chat-area" id="chat-messages" style="flex:1;max-height:none"></div>
+                <div id="cd-actions" style="display:flex;gap:7px;flex-wrap:wrap;padding-top:8px;border-top:1px solid var(--border)"></div>
+              </div>
+            </div>
+            <!-- Owner inject message -->
+            <div id="owner-msg-row" style="display:none;padding:12px 16px;border-top:1px solid var(--border);background:var(--surface)">
+              <div style="font-size:10px;color:var(--text3);margin-bottom:6px">Send a manual message as yourself (visible in conversation log)</div>
+              <div class="send-row">
+                <textarea id="owner-msg-input" placeholder="Type your message..." style="min-height:36px"></textarea>
+                <button class="btn btn-sm btn-primary" onclick="sendOwnerMessage()"><i class="ti ti-send"></i></button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ══ CONTRACTS ══ -->
+      <div class="page" id="page-contracts">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px">
+          <div style="font-size:13px;font-weight:600;color:var(--text2)">Active contracts — Acquisition pipeline → Assignment disposition</div>
+          <div style="display:flex;gap:8px">
+            <button class="btn btn-sm" onclick="exportCSV('contracts')"><i class="ti ti-download"></i> Export</button>
+            <button class="btn btn-sm btn-primary" onclick="openAddContractModal()"><i class="ti ti-plus"></i> Add Contract</button>
+          </div>
+        </div>
+        <div class="grid-4" style="margin-bottom:14px">
+          <div class="metric-card"><div class="metric-label">Active Contracts</div><div class="metric-value" id="cm-active">0</div></div>
+          <div class="metric-card"><div class="metric-label">Pending Your Action</div><div class="metric-value metric-down" id="cm-pending">0</div></div>
+          <div class="metric-card"><div class="metric-label">Assigned (MTD)</div><div class="metric-value metric-up" id="cm-assigned">0</div></div>
+          <div class="metric-card"><div class="metric-label">Avg Assignment Fee</div><div class="metric-value" id="cm-avg-fee">—</div></div>
+        </div>
+        <div class="table-wrap">
+          <table>
+            <thead><tr><th>Property</th><th>Seller</th><th>Purchase Price</th><th>Assignment Fee Range</th><th>Status</th><th>Actions</th></tr></thead>
+          <tbody id="contracts-table-body"></tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- ══ BUYERS ══ -->
+      <div class="page" id="page-buyers">
+        <div style="display:flex;align-items:center;justify-content:flex-end;margin-bottom:10px">
+          <button class="btn btn-sm" onclick="exportCSV('buyers')"><i class="ti ti-download"></i> Export CSV</button>
+        </div>
+        <div class="table-wrap">
+          <table>
+            <thead><tr><th>Score</th><th>Contact</th><th>Interest</th><th>Target Price</th><th>Follow-ups</th><th>Status</th><th>Actions</th></tr></thead>
+            <tbody id="buyers-table-body"></tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- ══ ANALYTICS ══ -->
+      <div class="page" id="page-analytics">
+        <div class="grid-4">
+          <div class="metric-card"><div class="metric-label">Seller Conv. Rate</div><div class="metric-value" id="an-conv">—</div><div class="metric-delta">Contacted → Interested</div></div>
+          <div class="metric-card"><div class="metric-label">Close Rate</div><div class="metric-value" id="an-close">—</div><div class="metric-delta">Interested → Contract</div></div>
+          <div class="metric-card"><div class="metric-label">Avg Negotiation Rounds</div><div class="metric-value" id="an-rounds">—</div><div class="metric-delta">Messages to agreement</div></div>
+          <div class="metric-card"><div class="metric-label">Total Revenue (MTD)</div><div class="metric-value metric-up" id="an-rev">$0</div><div class="metric-delta">Assignment fees</div></div>
+        </div>
+        <div class="grid-2">
+          <div class="card"><div class="card-header"><div class="card-title">Outreach Volume by Week</div></div><div class="chart-container"><canvas id="outreachChart"></canvas></div></div>
+          <div class="card"><div class="card-header"><div class="card-title">Pipeline Funnel</div></div><div class="chart-container"><canvas id="funnelChart"></canvas></div></div>
+        </div>
+        <div class="grid-2">
+          <div class="card"><div class="card-header"><div class="card-title">Asking vs. Negotiated Price</div></div><div class="chart-container"><canvas id="savingsChart"></canvas></div></div>
+          <div class="card"><div class="card-header"><div class="card-title">Follow-up Response Rate</div></div><div class="chart-container"><canvas id="followupChart"></canvas></div></div>
+        </div>
+      </div>
+
+      <!-- ══ NOTIFICATIONS ══ -->
+      <div class="page" id="page-notifications">
+        <div id="notif-list"><div style="font-size:13px;color:var(--text3);text-align:center;padding:40px">No notifications yet. Import leads to get started.</div></div>
+      </div>
+
+      <!-- ══ SMS GATEWAY SETTINGS ══ -->
+      <div class="page" id="page-settings">
+        <!-- Connection Banner -->
+        <div id="gw-banner" style="display:none;margin-bottom:14px"></div>
+
+        <div class="grid-2">
+          <!-- Left: Backend + Twilio Config -->
+          <div>
+            <div class="card">
+              <div class="card-header">
+                <div><div class="card-title"><i class="ti ti-server" style="color:var(--accent)"></i> Backend Server</div><div class="card-sub">Connect to your Node.js server running server.js</div></div>
+                <div id="backend-status-badge"><span class="badge badge-cold">Disconnected</span></div>
+              </div>
+              <div class="form-group">
+                <div class="form-label">Backend URL</div>
+                <div style="display:flex;gap:8px">
+                  <input type="url" id="cfg-backend-url" placeholder="http://localhost:3001" style="flex:1">
+                  <button class="btn btn-sm btn-primary" onclick="connectBackend()"><i class="ti ti-plug-connected"></i> Connect</button>
+                </div>
+                <div style="font-size:10px;color:var(--text3);margin-top:5px">Running locally? Use <code style="background:var(--card2);padding:1px 5px;border-radius:3px">http://localhost:3001</code> &nbsp;·&nbsp; For public access, use ngrok or a VPS</div>
+              </div>
+              <div class="form-group">
+                <div class="form-label">Twilio Webhook URL <span style="color:var(--text3)">(paste this in your Twilio console)</span></div>
+                <div style="display:flex;gap:8px">
+                  <input type="text" id="webhook-url-display" readonly style="flex:1;background:var(--surface);font-family:var(--mono);font-size:11px;color:var(--text2)" value="Connect backend first to see webhook URL">
+                  <button class="btn btn-sm" onclick="copyWebhook()"><i class="ti ti-copy"></i></button>
+                </div>
+                <div style="font-size:10px;color:var(--text3);margin-top:5px">In Twilio Console → Phone Numbers → Your Number → Messaging → Webhook URL → paste above</div>
+              </div>
+            </div>
+
+            <div class="card">
+              <div class="card-header">
+                <div><div class="card-title"><i class="ti ti-message-2" style="color:var(--green)"></i> Twilio SMS Gateway</div><div class="card-sub">Real SMS delivery via Twilio</div></div>
+                <div id="twilio-status-badge"><span class="badge badge-cold">Not Configured</span></div>
+              </div>
+              <div class="form-group">
+                <div class="form-label">Twilio Account SID</div>
+                <input type="password" id="cfg-twilio-sid" placeholder="ACxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx">
+              </div>
+              <div class="form-group">
+                <div class="form-label">Twilio Auth Token</div>
+                <input type="password" id="cfg-twilio-token" placeholder="Your auth token">
+              </div>
+              <div class="form-group">
+                <div class="form-label">Twilio From Number <span style="color:var(--text3)">(E.164 format)</span></div>
+                <input type="text" id="cfg-twilio-from" placeholder="+15025550100">
+              </div>
+              <div class="form-group">
+                <div class="form-label">Anthropic API Key</div>
+                <input type="password" id="cfg-anthropic-key" placeholder="sk-ant-...">
+              </div>
+              <div style="display:flex;gap:8px;margin-bottom:10px">
+                <button class="btn btn-primary" onclick="saveGatewaySettings()"><i class="ti ti-device-floppy"></i> Save Credentials</button>
+              </div>
+              <hr class="divider">
+              <div class="form-group">
+                <div class="form-label">Test SMS — Send a test message to verify gateway</div>
+                <div style="display:flex;gap:8px">
+                  <input type="tel" id="cfg-test-phone" placeholder="+15025550123" style="flex:1">
+                  <button class="btn btn-sm btn-success" onclick="testGateway()"><i class="ti ti-send"></i> Send Test SMS</button>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Right: AI Config + Status -->
+          <div>
+            <div class="card">
+              <div class="card-header"><div class="card-title"><i class="ti ti-robot" style="color:var(--accent)"></i> AI Configuration</div></div>
+              <div class="form-group">
+                <div class="form-label">AI Persona Name <span style="color:var(--text3)">(shown to prospects)</span></div>
+                <input type="text" id="cfg-persona" placeholder="Alex" value="Alex">
+              </div>
+              <div class="form-group">
+                <div class="form-label">Company Name</div>
+                <input type="text" id="cfg-company" placeholder="HomeFlex Acquisitions" value="HomeFlex Acquisitions">
+              </div>
+              <div class="form-group">
+                <div class="form-label">Default message tone</div>
+                <select id="cfg-tone">
+                  <option value="professional">Professional &amp; direct</option>
+                  <option value="friendly">Friendly &amp; conversational</option>
+                  <option value="formal">Formal / Harvard-style</option>
+                </select>
+              </div>
+              <div class="form-row">
+                <div class="form-group">
+                  <div class="form-label">Max follow-ups per lead</div>
+                  <input type="number" id="cfg-max-fu" value="5" min="1" max="10">
+                </div>
+                <div class="form-group">
+                  <div class="form-label">Follow-up delay (hours)</div>
+                  <input type="number" id="cfg-fu-delay" value="24" min="1" max="168">
+                </div>
+              </div>
+              <button class="btn btn-primary" onclick="saveAISettings()"><i class="ti ti-device-floppy"></i> Save AI Settings</button>
+            </div>
+
+            <div class="card">
+              <div class="card-header"><div class="card-title"><i class="ti ti-activity" style="color:var(--green)"></i> Gateway Status</div></div>
+              <div id="gw-stats-panel">
+                <div style="display:flex;align-items:center;gap:10px;padding:10px 0;border-bottom:1px solid var(--border)">
+                  <div id="gw-mode-icon" style="width:36px;height:36px;border-radius:50%;background:var(--card2);border:1px solid var(--border);display:flex;align-items:center;justify-content:center;font-size:18px">🔌</div>
+                  <div>
+                    <div style="font-size:13px;font-weight:600" id="gw-mode-text">Demo Mode</div>
+                    <div style="font-size:11px;color:var(--text2)" id="gw-mode-sub">Simulated conversations — no real SMS</div>
+                  </div>
+                </div>
+                <div style="margin-top:12px;display:grid;grid-template-columns:1fr 1fr;gap:10px">
+                  <div style="background:var(--card2);border-radius:var(--radius);padding:11px;text-align:center">
+                    <div style="font-size:22px;font-weight:700" id="gw-sent-count">0</div>
+                    <div style="font-size:10px;color:var(--text3);margin-top:2px">SMS Sent</div>
+                  </div>
+                  <div style="background:var(--card2);border-radius:var(--radius);padding:11px;text-align:center">
+                    <div style="font-size:22px;font-weight:700" id="gw-recv-count">0</div>
+                    <div style="font-size:10px;color:var(--text3);margin-top:2px">SMS Received</div>
+                  </div>
+                  <div style="background:var(--card2);border-radius:var(--radius);padding:11px;text-align:center">
+                    <div style="font-size:22px;font-weight:700" id="gw-fail-count" style="color:var(--red)">0</div>
+                    <div style="font-size:10px;color:var(--text3);margin-top:2px">Failed</div>
+                  </div>
+                  <div style="background:var(--card2);border-radius:var(--radius);padding:11px;text-align:center">
+                    <div style="font-size:22px;font-weight:700;color:var(--green)" id="gw-deliv-count">0</div>
+                    <div style="font-size:10px;color:var(--text3);margin-top:2px">Delivered</div>
+                  </div>
+                </div>
+                <div style="margin-top:12px;padding:10px;background:var(--accent-glow);border:1px solid rgba(108,99,255,0.25);border-radius:var(--radius);font-size:11px;color:var(--text2);line-height:1.6">
+                  <b>Launch Control users:</b> Launch Control doesn't offer a public API. To integrate, use Twilio as your SMS provider and route messages through this backend. Twilio's number pools offer similar deliverability with full programmatic control.
+                </div>
+              </div>
+            </div>
+
+            <div class="card">
+              <div class="card-header"><div class="card-title"><i class="ti ti-help" style="color:var(--blue)"></i> Quick Setup Guide</div></div>
+              <div style="font-size:12px;line-height:1.8;color:var(--text2)">
+                <div style="margin-bottom:6px"><span style="color:var(--accent);font-weight:600">Step 1</span> — Sign up at <a href="https://twilio.com" target="_blank" style="color:var(--accent)">twilio.com</a>, buy a phone number</div>
+                <div style="margin-bottom:6px"><span style="color:var(--accent);font-weight:600">Step 2</span> — Install &amp; start the backend: <code style="background:var(--card2);padding:1px 6px;border-radius:3px;font-size:11px">npm install &amp;&amp; npm start</code></div>
+                <div style="margin-bottom:6px"><span style="color:var(--accent);font-weight:600">Step 3</span> — For local dev, expose it with: <code style="background:var(--card2);padding:1px 6px;border-radius:3px;font-size:11px">npx localtunnel --port 3001</code></div>
+                <div style="margin-bottom:6px"><span style="color:var(--accent);font-weight:600">Step 4</span> — Paste your credentials above and click Save</div>
+                <div style="margin-bottom:6px"><span style="color:var(--accent);font-weight:600">Step 5</span> — Copy the Webhook URL and paste it in your Twilio console</div>
+                <div><span style="color:var(--green);font-weight:600">✓ Done</span> — Launch a campaign and watch real SMS flow!</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+  </div><!-- /main -->
+
+  <!-- ═══ MODALS ═══ -->
+
+  <!-- Price Range Modal -->
+  <div class="modal-backdrop" id="priceModal">
+    <div class="modal">
+      <div class="modal-title"><i class="ti ti-currency-dollar" style="color:var(--green)"></i> Set Purchase Price Range</div>
+      <div class="form-group">
+        <div class="form-label">Seller / Property</div>
+        <select id="price-modal-seller"></select>
+      </div>
+      <div class="form-row">
+        <div class="form-group"><div class="form-label">Min offer ($) — never go above max</div><input type="number" id="price-min" placeholder="70000"></div>
+        <div class="form-group"><div class="form-label">Max offer ($) — AI hard ceiling</div><input type="number" id="price-max" placeholder="95000"></div>
+      </div>
+      <div class="form-group">
+        <div class="form-label">Initial lowball offer ($) — AI opens here</div>
+        <input type="number" id="price-lowball" placeholder="65000">
+      </div>
+      <div class="form-group">
+        <div class="form-label">Notes for AI negotiator (optional)</div>
+        <textarea id="price-notes" placeholder="e.g. Property needs roof work. Emphasize fast cash close, no contingencies, flexible closing date."></textarea>
+      </div>
+      <div style="font-size:11px;color:var(--text2);background:var(--accent-glow);border:1px solid rgba(108,99,255,0.3);border-radius:var(--radius);padding:9px;margin-bottom:4px"><i class="ti ti-info-circle"></i> AI will start at lowball, concede slowly, and never exceed your max. If prospect won't agree in range, AI will respectfully decline and leave the door open.</div>
+      <div class="modal-footer">
+        <button class="btn" onclick="closeModal('priceModal')">Cancel</button>
+        <button class="btn btn-primary" onclick="activateNegotiation()"><i class="ti ti-robot"></i> Activate AI Negotiation</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Contract Send Modal -->
+  <div class="modal-backdrop" id="contractModal">
+    <div class="modal">
+      <div class="modal-title"><i class="ti ti-file-text" style="color:var(--accent)"></i> Send Finalized Contract</div>
+      <div id="contract-modal-info" style="background:var(--green-bg);border:1px solid var(--green-border);border-radius:var(--radius);padding:10px 12px;font-size:12px;color:var(--green);margin-bottom:14px"></div>
+      <div class="form-group">
+        <div class="form-label">Upload purchase agreement (PDF / DOC)</div>
+        <div class="dropzone" onclick="triggerContractUpload()" id="contract-drop">
+          <i class="ti ti-file-upload"></i>
+          <div style="font-size:12px;margin-bottom:4px">Click to upload or drag your contract here</div>
+          <div style="font-size:10px;color:var(--text3)">PDF or Word document</div>
+        </div>
+        <input type="file" id="contract-file-input" style="display:none" accept=".pdf,.doc,.docx" onchange="contractFileSelected(this)">
+        <div id="contract-file-name" style="font-size:11px;color:var(--green);margin-top:6px;display:none"></div>
+      </div>
+      <div class="form-group">
+        <div class="form-label">Delivery method</div>
+        <select id="contract-delivery"><option value="sms">SMS DocuSign link</option><option value="email">Email</option><option value="both">Both SMS + Email</option></select>
+      </div>
+      <div class="modal-footer">
+        <button class="btn" onclick="closeModal('contractModal')">Cancel</button>
+        <button class="btn btn-primary" id="send-contract-btn" onclick="sendContract()"><i class="ti ti-send"></i> Send Contract to Seller</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Buyer Contract Send Modal -->
+  <div class="modal-backdrop" id="buyerContractModal">
+    <div class="modal">
+      <div class="modal-title"><i class="ti ti-file-text" style="color:var(--accent)"></i> Send Assignment Contract to Buyer</div>
+      <div id="buyer-contract-modal-info" style="background:var(--green-bg);border:1px solid var(--green-border);border-radius:var(--radius);padding:10px 12px;font-size:12px;color:var(--green);margin-bottom:14px"></div>
+      <div class="form-group">
+        <div class="form-label">Upload assignment contract</div>
+        <div class="dropzone" onclick="triggerBuyerContractUpload()">
+          <i class="ti ti-file-upload"></i>
+          <div style="font-size:12px">Click to upload assignment contract</div>
+        </div>
+        <input type="file" id="buyer-contract-file-input" style="display:none" accept=".pdf,.doc,.docx" onchange="buyerContractFileSelected(this)">
+        <div id="buyer-contract-file-name" style="font-size:11px;color:var(--green);margin-top:6px;display:none"></div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn" onclick="closeModal('buyerContractModal')">Cancel</button>
+        <button class="btn btn-primary" onclick="sendBuyerContract()"><i class="ti ti-send"></i> Send to Buyer</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Quick Import Modal -->
+  <div class="modal-backdrop" id="importModal">
+    <div class="modal">
+      <div class="modal-title">Quick Add Leads</div>
+      <div class="form-group">
+        <div class="form-label">Type</div>
+        <select id="quick-import-type"><option value="seller">Seller prospects</option><option value="buyer">Buyer prospects</option></select>
+      </div>
+      <div class="form-group">
+        <div class="form-label">Phone numbers (one per line)</div>
+        <textarea id="quick-import-input" placeholder="(502) 555-0101&#10;(502) 555-0178"></textarea>
+      </div>
+      <div class="modal-footer">
+        <button class="btn" onclick="closeModal('importModal')">Cancel</button>
+        <button class="btn btn-primary" onclick="quickImport()"><i class="ti ti-check"></i> Add &amp; Queue</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Add Contract Modal -->
+  <div class="modal-backdrop" id="addContractModal">
+    <div class="modal">
+      <div class="modal-title"><i class="ti ti-file-plus" style="color:var(--green)"></i> Add Contract Manually</div>
+      <div style="font-size:11px;color:var(--text2);background:var(--card2);border-radius:var(--radius);padding:9px;margin-bottom:12px">
+        Use this when a seller agreed outside of AI flow, or to manually enter a contract you've already negotiated.
+      </div>
+      <div class="form-group">
+        <div class="form-label">Property Address</div>
+        <input type="text" id="new-contract-address" placeholder="123 Maple Ave, Louisville KY 40205">
+      </div>
+      <div class="form-group">
+        <div class="form-label">Link to Seller (optional)</div>
+        <select id="new-contract-seller-select">
+          <option value="">— No linked seller —</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <div class="form-label">Seller Name (if not linked)</div>
+        <input type="text" id="new-contract-seller-name" placeholder="John Smith">
+      </div>
+      <div class="form-group">
+        <div class="form-label">Purchase Price ($)</div>
+        <input type="number" id="new-contract-price" placeholder="75000">
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <div class="form-label">Min assignment fee ($)</div>
+          <input type="number" id="new-contract-fee-min" placeholder="5000">
+        </div>
+        <div class="form-group">
+          <div class="form-label">Max assignment fee ($)</div>
+          <input type="number" id="new-contract-fee-max" placeholder="12000">
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn" onclick="closeModal('addContractModal')">Cancel</button>
+        <button class="btn btn-primary" onclick="addContractManually()"><i class="ti ti-check"></i> Add Contract</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Seller Detail Modal -->
+  <div class="modal-backdrop" id="sellerDetailModal">
+    <div class="modal" style="width:520px">
+      <div class="modal-title"><i class="ti ti-user" style="color:var(--accent)"></i> Seller Details</div>
+      <div id="seller-detail-content" style="font-size:12px;color:var(--text2);line-height:1.8"></div>
+      <div class="modal-footer">
+        <button class="btn" onclick="closeModal('sellerDetailModal')">Close</button>
+        <button class="btn btn-sm btn-success" id="seller-detail-price-btn"></button>
+        <button class="btn btn-sm btn-primary" id="seller-detail-contract-btn" style="display:none"></button>
+      </div>
+    </div>
+  </div>
+
+  <!-- AI Response Modal (for viewing full AI chain) -->
+  <div class="modal-backdrop" id="aiResponseModal">
+    <div class="modal" style="width:560px">
+      <div class="modal-title"><i class="ti ti-robot" style="color:var(--accent)"></i> AI Response</div>
+      <div id="ai-response-content" style="font-size:12px;line-height:1.7;color:var(--text);background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:13px;max-height:400px;overflow-y:auto;white-space:pre-wrap"></div>
+      <div class="modal-footer">
+        <button class="btn" onclick="closeModal('aiResponseModal')">Close</button>
+        <button class="btn btn-primary" id="approve-ai-msg-btn" onclick="approveAIMessage()"><i class="ti ti-check"></i> Send This Message</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- TOAST -->
+  <div id="toast"></div>
+
+</div><!-- /shell -->
+
+<!-- ══════════════════════════════════════════════════════════
+     APPLICATION LOGIC
+══════════════════════════════════════════════════════════ -->
+<script>
+'use strict';
+
+/* ══ STATE ══ */
+const STATE = {
+  sellers: [],      // {id, name, phone, address, status, score, followups, msgs, priceMin, priceMax, priceLowball, priceNotes, negotiationActive, agreedPrice, contractSent, removedAt}
+  buyers: [],       // {id, name, phone, status, score, interest, targetFee, followups, msgs, feeMin, feeMax, contractId, contractSent}
+  contracts: [],    // {id, sellerId, address, sellerName, purchasePrice, feeMin, feeMax, status:'pending'|'pitching'|'assigned', assignedBuyerId}
+  campaigns: [],    // {id, name, type, launchedAt}
+  activity: [],     // {text, time, color}
+  notifications: [],// {type, title, body, action, actionFn}
+  charts: {},
+  currentConvoId: null,
+  currentConvoType: null, // 'seller'|'buyer'
+  pendingContractSellerId: null,
+  pendingBuyerContractId: null,
+  pendingAIMessage: null,
+  aiPersona: 'Alex',
+  companyName: 'HomeFlex Acquisitions',
+  maxFollowups: 5,
+  chartsInit: false,
+};
+
+/* ══ HELPERS ══ */
+let toastTimer;
+function showToast(msg, type=''){
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.className = type ? `toast-${type}` : '';
+  t.style.display = 'block';
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => t.style.display = 'none', 4000);
+}
+
+function openModal(id){ document.getElementById(id).classList.add('open') }
+function closeModal(id){ document.getElementById(id).classList.remove('open') }
+document.querySelectorAll('.modal-backdrop').forEach(m => m.addEventListener('click', e => { if(e.target === m) m.classList.remove('open') }));
+
+function uid(){ return Math.random().toString(36).slice(2,9) }
+function now(){ return new Date().toLocaleTimeString([], {hour:'2-digit',minute:'2-digit'}) }
+function timeAgo(ts){
+  const diff = Date.now() - ts;
+  if(diff < 60000) return 'just now';
+  if(diff < 3600000) return Math.floor(diff/60000) + 'm ago';
+  if(diff < 86400000) return Math.floor(diff/3600000) + 'h ago';
+  return Math.floor(diff/86400000) + 'd ago';
+}
+function fmtPhone(raw){
+  const d = raw.replace(/\D/g,'');
+  if(d.length===10) return `(${d.slice(0,3)}) ${d.slice(3,6)}-${d.slice(6)}`;
+  if(d.length===11) return `+${d[0]} (${d.slice(1,4)}) ${d.slice(4,7)}-${d.slice(7)}`;
+  return raw;
+}
+function fmtMoney(n){ return '$' + Number(n).toLocaleString() }
+function scoreClass(s){ return s>=75?'score-hot':s>=45?'score-warm':'score-cold' }
+const statusMap = {new:'badge-new',warm:'badge-warm',negotiating:'badge-negotiating',cold:'badge-cold',done:'badge-done',lost:'badge-lost',follow:'badge-follow'};
+const statusLabel = {new:'New',warm:'Interested',negotiating:'Negotiating',cold:'Cold',done:'Contracted',lost:'Not Interested',follow:'Follow-Up'};
+
+/* ══ NAVIGATION ══ */
+const pageMeta = {
+  dashboard:     ['Dashboard','Real-time wholesale pipeline overview'],
+  intake:        ['Import Leads','Configure and launch AI outreach campaigns'],
+  prospects:     ['Seller Leads','All seller prospects with AI lead scoring'],
+  conversations: ['AI Conversations','Live conversation monitoring & control'],
+  contracts:     ['Contracts','Acquisition & assignment tracking'],
+  buyers:        ['Buyer Leads','Cash buyer network management'],
+  analytics:     ['Analytics','Pipeline performance & conversion analytics'],
+  notifications: ['Notifications','Items requiring your attention'],
+  settings:      ['SMS Gateway','Connect Twilio for real SMS delivery'],
+};
+
+function nav(p){
+  document.querySelectorAll('.page').forEach(x => x.classList.remove('active'));
+  document.querySelectorAll('.nav-item').forEach(x => x.classList.remove('active'));
+  const el = document.getElementById('page-' + p);
+  if(el) el.classList.add('active');
+  const ni = document.querySelector(`.nav-item[data-page="${p}"]`);
+  if(ni) ni.classList.add('active');
+  document.getElementById('page-title').textContent = pageMeta[p]?.[0] || p;
+  document.getElementById('page-sub').textContent   = pageMeta[p]?.[1] || '';
+  if(p==='analytics')     initCharts();
+  if(p==='prospects')     renderProspects();
+  if(p==='conversations') renderConvoList();
+  if(p==='contracts')     renderContracts();
+  if(p==='buyers')        renderBuyers();
+  if(p==='notifications') renderNotifications();
+  if(p==='dashboard')     updateDashboard();
+  if(p==='settings')      renderSettingsPage();
+}
+
+function switchTab(el, tabId){
+  el.parentElement.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+  el.classList.add('active');
+  document.querySelectorAll('.tab-content').forEach(t => t.style.display = 'none');
+  const tab = document.getElementById(tabId);
+  if(tab) tab.style.display = 'block';
+}
+
+/* ══ LEAD PARSING ══ */
+function parsePhoneList(raw){
+  return raw.split(/[\n,]+/).map(line => {
+    line = line.trim();
+    if(!line) return null;
+    // Try "Name, Phone" or "Name Phone"
+    const withName = line.match(/^([a-zA-Z][^,\d]+?)[,\s]+(\(?\d[\d\s\-().+]{7,})$/);
+    if(withName){
+      return { name: withName[1].trim(), phone: fmtPhone(withName[2].trim()) };
+    }
+    const phoneOnly = line.match(/\(?\d[\d\s\-().+]{7,}/);
+    if(phoneOnly){
+      return { name: null, phone: fmtPhone(phoneOnly[0].trim()) };
+    }
+    return null;
+  }).filter(Boolean);
+}
+
+/* ══ CAMPAIGN LAUNCH ══ */
+function launchSellerCampaign(){
+  const raw = document.getElementById('sellerInput').value.trim();
+  if(!raw){ showToast('Paste at least one phone number first.','error'); return; }
+  const parsed = parsePhoneList(raw);
+  if(!parsed.length){ showToast('Could not parse any valid phone numbers.','error'); return; }
+
+  STATE.aiPersona = document.getElementById('ai-persona').value.trim() || 'Alex';
+  STATE.companyName = document.getElementById('company-name').value.trim() || 'HomeFlex Acquisitions';
+  STATE.maxFollowups = parseInt(document.getElementById('max-followups').value) || 5;
+
+  let added = 0;
+  parsed.forEach((p, i) => {
+    const nameFake = p.name || randomSellerName();
+    const existing = STATE.sellers.find(s => s.phone === p.phone);
+    if(existing){ return; }
+    const seller = {
+      id: uid(), name: nameFake, phone: p.phone,
+      address: randomAddress(),
+      status: 'new', score: Math.floor(Math.random()*30)+35,
+      followups: 0, msgs: [], ts: Date.now(),
+      priceMin: null, priceMax: null, priceLowball: null, priceNotes: '',
+      negotiationActive: false, agreedPrice: null, contractSent: false,
+      offerHistory: [], removedAt: null, type: 'seller',
+    };
+    STATE.sellers.push(seller);
+    added++;
+    // Stagger first AI message
+    setTimeout(() => sendFirstSellerMessage(seller), 800 + i*300);
+  });
+
+  addActivity(`Launched campaign with ${added} new seller leads. AI outreach starting.`, 'blue');
+  showToast(`${added} seller leads queued — AI outreach starting!`, 'success');
+  document.getElementById('sellerInput').value = '';
+  updateStepFlow(2);
+  updateDashboard();
+  nav('prospects');
+}
+
+function launchBuyerCampaign(){
+  const raw = document.getElementById('buyerInput').value.trim();
+  if(!raw){ showToast('Paste buyer phone numbers first.','error'); return; }
+  const feeMin = parseInt(document.getElementById('buyer-fee-min').value) || 8000;
+  const feeMax = parseInt(document.getElementById('buyer-fee-max').value) || 15000;
+  const contractId = document.getElementById('buyer-contract-select').value;
+  const parsed = parsePhoneList(raw);
+  if(!parsed.length){ showToast('No valid phone numbers found.','error'); return; }
+
+  let added = 0;
+  parsed.forEach((p, i) => {
+    const existing = STATE.buyers.find(b => b.phone === p.phone);
+    if(existing) return;
+    const buyer = {
+      id: uid(), name: p.name || randomBuyerName(), phone: p.phone,
+      status: 'new', score: Math.floor(Math.random()*40)+30,
+      interest: 'Unknown', targetFee: null,
+      followups: 0, msgs: [], ts: Date.now(),
+      feeMin, feeMax, contractId,
+      feeNegotiating: null, agreedFee: null, contractSent: false,
+      type: 'buyer',
+    };
+    STATE.buyers.push(buyer);
+    added++;
+    setTimeout(() => sendFirstBuyerMessage(buyer), 800 + i*300);
+  });
+
+  addActivity(`Launched buyer campaign: ${added} investors being pitched.`, 'amber');
+  showToast(`${added} buyer leads queued!`, 'success');
+  document.getElementById('buyerInput').value = '';
+  nav('buyers');
+}
+
+function quickImport(){
+  const type = document.getElementById('quick-import-type').value;
+  const raw = document.getElementById('quick-import-input').value.trim();
+  if(!raw){ showToast('Paste phone numbers first.','error'); return; }
+  document.getElementById('quick-import-input').value = raw;
+  if(type==='seller'){
+    document.getElementById('sellerInput').value = raw;
+    closeModal('importModal');
+    nav('intake');
+    launchSellerCampaign();
+  } else {
+    document.getElementById('buyerInput').value = raw;
+    closeModal('importModal');
+    nav('intake');
+    launchBuyerCampaign();
+  }
+}
+
+/* ══ AI: SELLER FLOW ══ */
+async function sendFirstSellerMessage(seller){
+  const msg = buildSellerOpeningMsg(seller);
+  addSellerMsg(seller, 'ai', msg);
+  seller.followups = 1;
+  updateDashboard();
+  renderConvoList();
+  // Schedule "response" simulation for demo
+  scheduleProspectReply(seller);
+}
+
+function buildSellerOpeningMsg(seller){
+  const fname = seller.name.split(' ')[0];
+  const tone = document.getElementById('msg-tone')?.value || 'professional';
+  const persona = STATE.aiPersona;
+  const company = STATE.companyName;
+  if(tone === 'formal'){
+    return `Good day, ${fname}. My name is ${persona}, and I represent ${company}. We specialize in acquiring residential properties through cash transactions in your area. I am reaching out to inquire whether you are considering a sale of your property at ${seller.address}. We offer competitive cash prices with expedited closings, no commissions or contingencies. Would you be open to a brief discussion?`;
+  } else if(tone === 'friendly'){
+    return `Hey ${fname}! This is ${persona} with ${company} 😊 I work with homeowners around here who might be thinking about selling, and your property at ${seller.address} caught my eye. I can offer a fair cash deal — no agents, no fees, fast close. Totally no pressure — just wanted to reach out and see if it's something you might be open to?`;
+  }
+  return `Hi ${fname}, my name is ${persona} with ${company}. We buy homes directly from homeowners in this area — no agents, no commissions, fast cash close. I'm reaching out about your property at ${seller.address}. Are you by any chance considering selling? Happy to make a fair offer with no strings attached.`;
+}
+
+function scheduleProspectReply(seller){
+  // Simulate realistic prospect responses for demo mode
+  const chance = Math.random();
+  const delay = 2000 + Math.random()*3000;
+  if(chance < 0.25){
+    // Interested
+    setTimeout(() => handleSellerReply(seller, 'interested', 'Yeah actually I have been thinking about selling. What kind of price are you looking at?'), delay);
+  } else if(chance < 0.45){
+    // Not interested
+    setTimeout(() => handleSellerReply(seller, 'notInterested', 'Thanks but I\'m not looking to sell right now.'), delay);
+  } else if(chance < 0.65){
+    // Has questions
+    setTimeout(() => handleSellerReply(seller, 'faq', 'How does this whole thing work? Do I need a realtor?'), delay);
+  } else {
+    // No response — trigger follow-up chain
+    if(seller.followups < STATE.maxFollowups){
+      setTimeout(() => sendFollowup(seller), 8000 + Math.random()*5000);
+    }
+  }
+}
+
+async function handleSellerReply(seller, intent, prospectMsg){
+  addSellerMsg(seller, 'prospect', prospectMsg);
+
+  if(intent === 'notInterested'){
+    seller.status = 'lost';
+    seller.score = Math.max(0, seller.score - 40);
+    const ai = `No worries at all, ${seller.name.split(' ')[0]}! I completely understand. If anything changes or you ever decide to explore your options in the future, please don't hesitate to reach out. You now know what's available to you, and we'd love the opportunity to work with you. Wishing you all the best!`;
+    addSellerMsg(seller, 'ai', ai);
+    seller.removedAt = Date.now();
+    addActivity(`${seller.name} confirmed not interested. Removed from pipeline.`, 'red');
+    pushNotification('danger', `Lead removed: ${seller.name}`, `${seller.name} at ${seller.address} confirmed they are not selling. Politely removed from pipeline.`, null, null);
+  } else if(intent === 'interested'){
+    seller.status = 'warm';
+    seller.score = Math.min(100, seller.score + 25);
+    const ai = `That's great to hear! I'd love to make this as smooth as possible for you. To put together the best offer, could you tell me a little about the property's condition? Also, is there a timeline you have in mind for the sale? Once I have those details, I can get you a solid cash offer quickly.`;
+    addSellerMsg(seller, 'ai', ai);
+    addActivity(`${seller.name} is interested in selling at ${seller.address}!`, 'green');
+    pushNotification('warning', `Price range needed — ${seller.name}`, `${seller.name} at ${seller.address} is interested in selling. Set your min/max purchase price range so AI can begin negotiation.`,
+      'Set Price Range', () => openPriceModalForSeller(seller.id));
+  } else if(intent === 'faq'){
+    seller.status = 'warm';
+    seller.score = Math.min(100, seller.score + 10);
+    const ai = await callAI([
+      {role:'system', content: getSellerSystemPrompt(seller)},
+      {role:'user', content: prospectMsg}
+    ]);
+    addSellerMsg(seller, 'ai', ai);
+    setTimeout(() => scheduleProspectReply(seller), 5000 + Math.random()*4000);
+  }
+
+  updateDashboard();
+  renderConvoList();
+  updateBadges();
+  if(STATE.currentConvoId === seller.id && STATE.currentConvoType === 'seller'){
+    renderConvoDetail(seller, 'seller');
+  }
+}
+
+function sendFollowup(seller){
+  if(seller.status === 'lost' || seller.status === 'done') return;
+  if(seller.followups >= STATE.maxFollowups){
+    seller.status = 'cold';
+    updateDashboard();
+    return;
+  }
+  seller.followups++;
+  const fname = seller.name.split(' ')[0];
+  const followupMsgs = [
+    `Hi ${fname}, just following up on my earlier message about ${seller.address}. Still happy to make a cash offer if you're open to it — no pressure!`,
+    `Hey ${fname}, wanted to check back in. Cash offers in this market don't last long — if you're even a little curious, let's talk numbers. No obligation.`,
+    `${fname}, reaching out one more time. Many homeowners I work with are surprised at how fair a cash offer can be. Would you be open to a quick 5-min chat?`,
+    `Hi ${fname}, I know life gets busy! Just wanted to make sure my earlier message didn't get lost. Still here if you want to explore a cash sale option.`,
+    `${fname}, this will be my final message so I don't bother you. If you ever think about selling ${seller.address} down the road, please reach out. Happy to help whenever the timing is right!`,
+  ];
+  const msg = followupMsgs[Math.min(seller.followups-1, followupMsgs.length-1)];
+  addSellerMsg(seller, 'ai', msg);
+  addActivity(`Follow-up #${seller.followups} sent to ${seller.name}.`, 'blue');
+  // Schedule next follow-up or response
+  scheduleProspectReply(seller);
+  if(STATE.currentConvoId === seller.id) renderConvoDetail(seller, 'seller');
+  updateDashboard();
+}
+
+/* ══ AI: NEGOTIATION ══ */
+function openPriceModalForSeller(sellerId){
+  const seller = STATE.sellers.find(s => s.id === sellerId);
+  if(!seller) return;
+  STATE.pendingContractSellerId = sellerId;
+  const sel = document.getElementById('price-modal-seller');
+  sel.innerHTML = STATE.sellers.filter(s=>s.status==='warm'||s.status==='negotiating').map(s =>
+    `<option value="${s.id}" ${s.id===sellerId?'selected':''}>${s.name} — ${s.address}</option>`
+  ).join('');
+  // Pre-fill if exists
+  if(seller.priceMin) document.getElementById('price-min').value = seller.priceMin;
+  if(seller.priceMax) document.getElementById('price-max').value = seller.priceMax;
+  if(seller.priceLowball) document.getElementById('price-lowball').value = seller.priceLowball;
+  openModal('priceModal');
+}
+
+async function activateNegotiation(){
+  const sellerId = document.getElementById('price-modal-seller').value || STATE.pendingContractSellerId;
+  const seller = STATE.sellers.find(s => s.id === sellerId);
+  if(!seller){ closeModal('priceModal'); return; }
+  const min = parseInt(document.getElementById('price-min').value);
+  const max = parseInt(document.getElementById('price-max').value);
+  const lowball = parseInt(document.getElementById('price-lowball').value) || min;
+  const notes = document.getElementById('price-notes').value;
+  if(!min||!max||min>=max){ showToast('Enter valid min/max price range.','error'); return; }
+  seller.priceMin = min; seller.priceMax = max; seller.priceLowball = lowball; seller.priceNotes = notes;
+  seller.status = 'negotiating';
+  seller.negotiationActive = true;
+  seller.score = Math.min(100, seller.score + 15);
+  closeModal('priceModal');
+  // Send the opening negotiation offer
+  const ai = await callAI([
+    {role:'system', content: getSellerNegotiationPrompt(seller)},
+    {role:'user', content: `SYSTEM: Start negotiation. Make opening offer of ${fmtMoney(lowball)}. Be professional, justify the price, emphasize cash and speed.`}
+  ]);
+  addSellerMsg(seller, 'ai', ai);
+  seller.offerHistory.push({from:'ai', amount: lowball, ts: Date.now()});
+  addActivity(`AI negotiation started with ${seller.name} at ${fmtMoney(lowball)} (range: ${fmtMoney(min)}–${fmtMoney(max)}).`, 'amber');
+  // Simulate prospect counteroffer
+  const askingMore = Math.floor(max * (1.1 + Math.random()*0.3));
+  setTimeout(() => handleSellerCounter(seller, askingMore), 3000 + Math.random()*3000);
+  updateDashboard();
+  if(STATE.currentConvoId === seller.id) renderConvoDetail(seller, 'seller');
+  showToast(`AI negotiation activated for ${seller.name}!`, 'success');
+}
+
+async function handleSellerCounter(seller, counterAmount){
+  if(!seller.negotiationActive) return;
+  const msg = `That feels a bit low. I was thinking more around ${fmtMoney(counterAmount)}.`;
+  addSellerMsg(seller, 'prospect', msg);
+  seller.offerHistory.push({from:'prospect', amount: counterAmount, ts: Date.now()});
+  // Check if counter is reachable
+  const nextOffer = Math.min(seller.priceMax, Math.floor((seller.priceLowball + counterAmount) / 2));
+  const prompt = getSellerNegotiationPrompt(seller);
+  const aiMsg = await callAI([
+    {role:'system', content: prompt},
+    {role:'user', content: `Prospect countered at ${fmtMoney(counterAmount)}. Current best offer from AI was ${fmtMoney(seller.offerHistory.filter(o=>o.from==='ai').slice(-1)[0]?.amount||seller.priceLowball)}. Consider coming up to around ${fmtMoney(nextOffer)} if within range. If prospect's ask exceeds max of ${fmtMoney(seller.priceMax)}, politely hold firm and try to find middle ground. Do not exceed max.`}
+  ]);
+  addSellerMsg(seller, 'ai', aiMsg);
+  seller.offerHistory.push({from:'ai', amount: nextOffer, ts: Date.now()});
+  // Final counter scenario
+  const finalCounter = Math.floor((nextOffer + counterAmount) / 2);
+  if(finalCounter <= seller.priceMax){
+    setTimeout(() => finalizeNegotiation(seller, finalCounter), 4000 + Math.random()*3000);
+  } else {
+    // Out of range
+    setTimeout(() => walkAwayNegotiation(seller), 4000 + Math.random()*2000);
+  }
+  if(STATE.currentConvoId === seller.id) renderConvoDetail(seller, 'seller');
+  updateDashboard();
+}
+
+async function finalizeNegotiation(seller, price){
+  const msg = `What about ${fmtMoney(price)}? That would work for me.`;
+  addSellerMsg(seller, 'prospect', msg);
+  seller.offerHistory.push({from:'prospect', amount: price, ts: Date.now()});
+  if(price <= seller.priceMax){
+    seller.agreedPrice = price;
+    seller.negotiationActive = false;
+    seller.status = 'done';
+    seller.score = Math.min(100, seller.score + 20);
+    const ai = await callAI([
+      {role:'system', content: getSellerNegotiationPrompt(seller)},
+      {role:'user', content: `Prospect just agreed to ${fmtMoney(price)}. This is within the approved range of ${fmtMoney(seller.priceMin)}–${fmtMoney(seller.priceMax)}. Express genuine enthusiasm, confirm the deal verbally, and let them know a purchase agreement will be sent shortly.`}
+    ]);
+    addSellerMsg(seller, 'ai', ai);
+    // Create contract
+    const contract = { id: uid(), sellerId: seller.id, address: seller.address, sellerName: seller.name, purchasePrice: price, feeMin: Math.round(price*0.08), feeMax: Math.round(price*0.16), status: 'pending', assignedBuyerId: null, ts: Date.now() };
+    STATE.contracts.push(contract);
+    addActivity(`🎉 Deal agreed! ${seller.name} at ${fmtMoney(price)} for ${seller.address}.`, 'green');
+    pushNotification('success', `Deal agreed — ${seller.address}`, `${seller.name} verbally agreed to ${fmtMoney(price)}. Upload your purchase agreement contract to send to them.`,
+      'Send Contract', () => openContractModal(seller.id));
+    updateBadges();
+  }
+  updateDashboard();
+  renderConvoList();
+  if(STATE.currentConvoId === seller.id) renderConvoDetail(seller, 'seller');
+}
+
+async function walkAwayNegotiation(seller){
+  seller.negotiationActive = false;
+  seller.status = 'cold';
+  const ai = await callAI([
+    {role:'system', content: getSellerNegotiationPrompt(seller)},
+    {role:'user', content: `The prospect's asking price exceeds our maximum budget. Respectfully and professionally let them know we are unable to meet their number at this time, but express genuine appreciation and leave the door wide open for future contact. Keep it warm.`}
+  ]);
+  addSellerMsg(seller, 'ai', ai);
+  addActivity(`Negotiation with ${seller.name} ended — out of price range.`, 'amber');
+  pushNotification('info', `Negotiation ended — ${seller.name}`, `Prospect's price exceeded your max. AI respectfully declined and left door open. You've been notified.`, null, null);
+  updateDashboard();
+  if(STATE.currentConvoId === seller.id) renderConvoDetail(seller, 'seller');
+}
+
+/* ══ AI: BUYER FLOW ══ */
+async function sendFirstBuyerMessage(buyer){
+  const contract = STATE.contracts.find(c => c.id === buyer.contractId);
+  const persona = STATE.aiPersona;
+  const company = STATE.companyName;
+  const fname = buyer.name.split(' ')[0];
+  const propDetail = contract ? `a ${contract.address} property we have under contract at ${fmtMoney(contract.purchasePrice)}` : 'an exclusive off-market investment opportunity';
+  const msg = `Hello ${fname}, this is ${persona} representing ${company}. I'm reaching out to present ${propDetail} that may align with your investment strategy. The assignment fee is in the range of ${fmtMoney(buyer.feeMin)}–${fmtMoney(buyer.feeMax)}, and this is a cash deal with a fast close timeline. Would you be interested in reviewing the property details?`;
+  addBuyerMsg(buyer, 'ai', msg);
+  buyer.followups = 1;
+  updateBadges();
+  // Simulate buyer response
+  const delay = 3000 + Math.random()*4000;
+  const chance = Math.random();
+  if(chance < 0.3){
+    setTimeout(() => handleBuyerReply(buyer, 'interested', `Tell me more about the property. What's the ARV and repair estimate?`), delay);
+  } else if(chance < 0.5){
+    setTimeout(() => handleBuyerReply(buyer, 'negotiating', `The fee range seems a bit high. Can you do ${fmtMoney(Math.round(buyer.feeMin*0.85))}?`), delay);
+  } else if(chance < 0.65){
+    setTimeout(() => handleBuyerReply(buyer, 'notInterested', `Not interested at this time, thanks.`), delay);
+  } else {
+    setTimeout(() => sendBuyerFollowup(buyer), 10000 + Math.random()*5000);
+  }
+}
+
+async function handleBuyerReply(buyer, intent, prospectMsg){
+  addBuyerMsg(buyer, 'prospect', prospectMsg);
+  if(intent === 'notInterested'){
+    buyer.status = 'cold';
+    buyer.interest = 'Low';
+    const ai = `Thank you so much for your time, ${buyer.name.split(' ')[0]}. I completely understand. If a future deal ever catches your interest, please don't hesitate to reach out — we'd love to work with you. Best of luck with your investments!`;
+    addBuyerMsg(buyer, 'ai', ai);
+    addActivity(`Buyer ${buyer.name} not interested in current assignment.`, 'red');
+  } else if(intent === 'interested'){
+    buyer.status = 'warm';
+    buyer.interest = 'High';
+    buyer.score = Math.min(100, buyer.score + 20);
+    const contract = STATE.contracts.find(c => c.id === buyer.contractId);
+    const ai = await callAI([{role:'system', content: getBuyerSystemPrompt(buyer)}, {role:'user', content: prospectMsg}]);
+    addBuyerMsg(buyer, 'ai', ai);
+    buyer.interest = 'High';
+    addActivity(`Buyer ${buyer.name} is highly interested in the assignment!`, 'green');
+  } else if(intent === 'negotiating'){
+    buyer.status = 'warm';
+    buyer.interest = 'Medium';
+    const offeredFee = parseInt(prospectMsg.match(/\$?([\d,]+)/)?.[1]?.replace(',','')) || buyer.feeMin;
+    const counterFee = Math.max(buyer.feeMin, Math.min(buyer.feeMax, offeredFee + Math.round((buyer.feeMax - offeredFee)*0.4)));
+    const ai = await callAI([{role:'system', content: getBuyerNegotiationPrompt(buyer)}, {role:'user', content: `Buyer offered ${fmtMoney(offeredFee)} for the assignment fee. Counter at ${fmtMoney(counterFee)} and justify the value.`}]);
+    addBuyerMsg(buyer, 'ai', ai);
+    // Simulate acceptance
+    setTimeout(() => {
+      const agreedFee = Math.floor((offeredFee + counterFee)/2);
+      if(agreedFee >= buyer.feeMin){
+        handleBuyerAgreement(buyer, agreedFee);
+      }
+    }, 4000 + Math.random()*3000);
+  }
+  updateDashboard();
+  renderConvoList();
+  if(STATE.currentConvoId === buyer.id && STATE.currentConvoType === 'buyer') renderConvoDetail(buyer, 'buyer');
+}
+
+async function handleBuyerAgreement(buyer, fee){
+  const msg = `Alright, ${fmtMoney(fee)} works for me. Let's do it.`;
+  addBuyerMsg(buyer, 'prospect', msg);
+  buyer.agreedFee = fee;
+  buyer.status = 'done';
+  buyer.interest = 'High';
+  const ai = `Excellent! I'm glad we found a number that works for both of us. I'll have the assignment contract sent over to you shortly. Once you review and sign, we can proceed to close. Looking forward to a smooth transaction with you!`;
+  addBuyerMsg(buyer, 'ai', ai);
+  // Update contract
+  const contract = STATE.contracts.find(c => c.id === buyer.contractId);
+  if(contract){ contract.status = 'assigned'; contract.assignedBuyerId = buyer.id; }
+  addActivity(`Buyer ${buyer.name} agreed to assignment fee of ${fmtMoney(fee)}!`, 'green');
+  pushNotification('success', `Buyer deal agreed — ${fmtMoney(fee)} fee`, `${buyer.name} agreed to the ${fmtMoney(fee)} assignment fee. Upload the assignment contract and call your title company to finalize.`,
+    'Send Assignment Contract', () => openBuyerContractModal(buyer.id));
+  updateDashboard();
+  updateBadges();
+  if(STATE.currentConvoId === buyer.id) renderConvoDetail(buyer, 'buyer');
+}
+
+function sendBuyerFollowup(buyer){
+  if(buyer.status==='done'||buyer.status==='cold') return;
+  if(buyer.followups >= STATE.maxFollowups){ buyer.status='cold'; return; }
+  buyer.followups++;
+  const fname = buyer.name.split(' ')[0];
+  const msgs = [
+    `Hi ${fname}, just following up on the investment opportunity I shared. The assignment fee is ${fmtMoney(buyer.feeMin)}–${fmtMoney(buyer.feeMax)} — still available. Interested?`,
+    `${fname}, checking in on the off-market property deal. Fast close, cash — deals like this move quick. Happy to answer any questions.`,
+    `Hey ${fname}, third follow-up here. If timing or price is the concern, I'm open to a conversation. Let me know.`,
+    `${fname}, reaching out one last time about the investment property. If you'd like details, just reply and I'll send the full package.`,
+    `${fname}, final message — I don't want to be a bother! If you're ever in the market for an off-market assignment, reach out anytime. Best of luck!`,
+  ];
+  addBuyerMsg(buyer, 'ai', msgs[Math.min(buyer.followups-1, msgs.length-1)]);
+  if(buyer.followups < STATE.maxFollowups){
+    setTimeout(() => {
+      const chance = Math.random();
+      if(chance < 0.25) handleBuyerReply(buyer, 'negotiating', `Maybe. What's the lowest fee you can do?`);
+      else sendBuyerFollowup(buyer);
+    }, 8000 + Math.random()*5000);
+  }
+  renderConvoList();
+}
+
+/* ══ CONTRACT MODALS ══ */
+function openContractModal(sellerId){
+  const seller = STATE.sellers.find(s => s.id === sellerId);
+  if(!seller) return;
+  STATE.pendingContractSellerId = sellerId;
+  document.getElementById('contract-modal-info').innerHTML = `<i class="ti ti-check"></i> Deal agreed at ${fmtMoney(seller.agreedPrice)} with ${seller.name} for ${seller.address}`;
+  openModal('contractModal');
+}
+
+function openBuyerContractModal(buyerId){
+  const buyer = STATE.buyers.find(b => b.id === buyerId);
+  if(!buyer) return;
+  STATE.pendingBuyerContractId = buyerId;
+  document.getElementById('buyer-contract-modal-info').innerHTML = `<i class="ti ti-check"></i> Assignment fee agreed at ${fmtMoney(buyer.agreedFee)} with ${buyer.name}`;
+  openModal('buyerContractModal');
+}
+
+function triggerContractUpload(){ document.getElementById('contract-file-input').click() }
+function triggerBuyerContractUpload(){ document.getElementById('buyer-contract-file-input').click() }
+
+function contractFileSelected(input){
+  if(input.files[0]){
+    const el = document.getElementById('contract-file-name');
+    el.textContent = '✓ ' + input.files[0].name;
+    el.style.display = 'block';
+  }
+}
+
+function buyerContractFileSelected(input){
+  if(input.files[0]){
+    const el = document.getElementById('buyer-contract-file-name');
+    el.textContent = '✓ ' + input.files[0].name;
+    el.style.display = 'block';
+  }
+}
+
+async function sendContract(){
+  const seller = STATE.sellers.find(s => s.id === STATE.pendingContractSellerId);
+  if(!seller){ closeModal('contractModal'); return; }
+  seller.contractSent = true;
+  const delivery = document.getElementById('contract-delivery').value;
+  const method = delivery==='sms'?'SMS DocuSign link':delivery==='email'?'email':'SMS + email';
+  const ai = `Wonderful news, ${seller.name.split(' ')[0]}! I'm sending your purchase agreement over now via ${method}. Please review, sign, and return at your earliest convenience. Don't hesitate to reach out if you have any questions — we're here every step of the way. Looking forward to a smooth closing!`;
+  addSellerMsg(seller, 'ai', ai);
+  addActivity(`Purchase contract sent to ${seller.name} via ${method}.`, 'green');
+  showToast(`Contract sent to ${seller.name}!`, 'success');
+  closeModal('contractModal');
+  updateDashboard();
+  renderContracts();
+}
+
+async function sendBuyerContract(){
+  const buyer = STATE.buyers.find(b => b.id === STATE.pendingBuyerContractId);
+  if(!buyer){ closeModal('buyerContractModal'); return; }
+  buyer.contractSent = true;
+  const ai = `Excellent, ${buyer.name.split(' ')[0]}! Your assignment contract is on its way. Please review all terms carefully and sign at your convenience. Our title company will be in touch to coordinate the closing. Thank you for doing business with us — this is the beginning of a great partnership!`;
+  addBuyerMsg(buyer, 'ai', ai);
+  addActivity(`Assignment contract sent to buyer ${buyer.name}.`, 'green');
+  showToast(`Assignment contract sent to ${buyer.name}!`, 'success');
+  closeModal('buyerContractModal');
+  updateDashboard();
+}
+
+/* ══ OWNER MANUAL MESSAGE ══ */
+function sendOwnerMessage(){
+  const input = document.getElementById('owner-msg-input');
+  const msg = input.value.trim();
+  if(!msg) return;
+  if(!STATE.currentConvoId) return;
+  if(STATE.currentConvoType === 'seller'){
+    const seller = STATE.sellers.find(s => s.id === STATE.currentConvoId);
+    if(seller) addSellerMsg(seller, 'owner', msg);
+  } else {
+    const buyer = STATE.buyers.find(b => b.id === STATE.currentConvoId);
+    if(buyer) addBuyerMsg(buyer, 'owner', msg);
+  }
+  input.value = '';
+  const type = STATE.currentConvoType;
+  const entity = type==='seller' ? STATE.sellers.find(s=>s.id===STATE.currentConvoId) : STATE.buyers.find(b=>b.id===STATE.currentConvoId);
+  if(entity) renderConvoDetail(entity, type);
+}
+
+/* ══ AI API CALLS ══ */
+async function callAI(messages){
+  try {
+    const res = await fetch('https://api.anthropic.com/v1/messages', {
+      method: 'POST',
+      headers: {'Content-Type': 'application/json'},
+      body: JSON.stringify({ model: 'claude-sonnet-4-6', max_tokens: 1000, messages })
+    });
+    const data = await res.json();
+    return data.content?.[0]?.text || getFallbackMsg();
+  } catch(e){
+    return getFallbackMsg();
+  }
+}
+
+function getFallbackMsg(){
+  const fallbacks = [
+    'Thank you for your message! I want to make sure I give you the most accurate information. Could you give me just a moment to look into this for you?',
+    'I appreciate your response. Let me get the right details together to provide you with the best possible answer.',
+    'Excellent — thank you for getting back to me. I want to ensure we handle this correctly. Please give me a brief moment.',
+  ];
+  return fallbacks[Math.floor(Math.random()*fallbacks.length)];
+}
+
+function getSellerSystemPrompt(seller){
+  return `You are ${STATE.aiPersona}, a professional real estate wholesaler representing ${STATE.companyName}. You are communicating with ${seller.name} about potentially purchasing their property at ${seller.address}.
+
+Your role: Qualify motivated sellers, answer any questions they have about the selling process, and determine if they are interested in a cash sale.
+
+Guidelines:
+- Use Harvard-level grammar and professional real estate language
+- Be warm, empathetic, and never pushy
+- Answer FAQ questions about the process clearly (no realtor needed, cash purchase, fast close 7–14 days, no repairs needed, no commissions)
+- If they seem interested, gather info about property condition and timeline
+- NEVER mention specific prices until instructed
+- Keep messages concise (3–5 sentences max)`;
+}
+
+function getSellerNegotiationPrompt(seller){
+  return `You are ${STATE.aiPersona} from ${STATE.companyName}, negotiating to purchase ${seller.name}'s property at ${seller.address}.
+
+PRICE CONSTRAINTS (CRITICAL — NEVER VIOLATE):
+- Your minimum offer: ${fmtMoney(seller.priceMin)}
+- Your maximum offer (ABSOLUTE CEILING): ${fmtMoney(seller.priceMax)}  
+- You started at: ${fmtMoney(seller.priceLowball)}
+- NEVER exceed ${fmtMoney(seller.priceMax)} under any circumstances
+
+STRATEGY:
+- Start with the lowball offer and justify with repairs, market comps, speed of close
+- Concede slowly in increments (never jump more than 10–15% at once)
+- Emphasize: all-cash, no contingencies, fast close (7–14 days), no realtor fees
+- If seller's counter exceeds your max, politely but firmly hold your position
+- If truly out of range, respectfully decline and leave the door open
+
+Additional notes: ${seller.priceNotes || 'None'}
+Offer history: ${seller.offerHistory.map(o=>`${o.from}: ${fmtMoney(o.amount)}`).join(' → ')||'None yet'}
+
+Response style: Professional, Harvard-level grammar, 3–5 sentences max.`;
+}
+
+function getBuyerSystemPrompt(buyer){
+  const contract = STATE.contracts.find(c => c.id === buyer.contractId);
+  return `You are ${STATE.aiPersona} from ${STATE.companyName}, pitching an assignment contract to ${buyer.name}.
+
+Property: ${contract?.address || 'Off-market property'}
+Purchase price: ${fmtMoney(contract?.purchasePrice || 0)}
+Assignment fee range: ${fmtMoney(buyer.feeMin)} – ${fmtMoney(buyer.feeMax)}
+
+Your role: Professional real estate wholesaler pitching an assignment contract to a cash buyer/investor.
+- Answer all property questions accurately and professionally
+- Sell the deal on its merits (below market, cash purchase, fast close, no inspection contingencies)
+- Harvard-level business grammar
+- Keep responses concise and sales-focused`;
+}
+
+function getBuyerNegotiationPrompt(buyer){
+  const contract = STATE.contracts.find(c => c.id === buyer.contractId);
+  return `You are ${STATE.aiPersona} from ${STATE.companyName}, negotiating an assignment fee with buyer ${buyer.name}.
+
+CONSTRAINTS:
+- Min acceptable fee: ${fmtMoney(buyer.feeMin)} (NEVER go below this)
+- Max ask: ${fmtMoney(buyer.feeMax)}
+- Property: ${contract?.address || 'Off-market property'} at ${fmtMoney(contract?.purchasePrice || 0)}
+
+Negotiate professionally. Justify the fee with ARV potential, below-market purchase price, and zero contingency speed. Concede slowly. Never go below min fee.
+Harvard-level grammar. 3–5 sentences max.`;
+}
+
+/* ══ MESSAGE HELPERS ══ */
+function addSellerMsg(seller, role, text, smsStatus){
+  seller.msgs.push({role, text, time: now(), ts: Date.now(), smsStatus: smsStatus||'demo'});
+  if(STATE.currentConvoId === seller.id && STATE.currentConvoType === 'seller'){
+    appendChatBubble(role, text, now(), smsStatus);
+    scrollChat();
+  }
+}
+
+function addBuyerMsg(buyer, role, text, smsStatus){
+  buyer.msgs.push({role, text, time: now(), ts: Date.now(), smsStatus: smsStatus||'demo'});
+  if(STATE.currentConvoId === buyer.id && STATE.currentConvoType === 'buyer'){
+    appendChatBubble(role, text, now(), smsStatus);
+    scrollChat();
+  }
+}
+
+function appendChatBubble(role, text, time, smsStatus){
+  const area = document.getElementById('chat-messages');
+  if(!area) return;
+  const isRight = role !== 'ai';
+  const label = role==='ai'?`${STATE.aiPersona} (AI)`:role==='prospect'?'Prospect':role==='owner'?'You':'—';
+  const cls = role==='ai'?'bubble-ai':role==='prospect'?'bubble-prospect':'bubble-owner';
+  // SMS status indicator for AI messages
+  let statusHtml = '';
+  if(role==='ai' && smsStatus){
+    const statusMap2 = {
+      queued:    {icon:'ti-clock',      color:'var(--text3)',  tip:'Queued'},
+      sent:      {icon:'ti-check',      color:'var(--text3)',  tip:'Sent'},
+      delivered: {icon:'ti-checks',     color:'var(--green)',  tip:'Delivered'},
+      failed:    {icon:'ti-x',          color:'var(--red)',    tip:'Failed'},
+      demo:      {icon:'ti-test-pipe',  color:'var(--accent)', tip:'Demo Mode'},
+      simulated: {icon:'ti-test-pipe',  color:'var(--accent)', tip:'Simulated'},
+      received:  {icon:'ti-arrow-down', color:'var(--blue)',   tip:'Received'},
+    };
+    const s = statusMap2[smsStatus] || {icon:'ti-circle',color:'var(--text3)',tip:smsStatus};
+    statusHtml = `<i class="ti ${s.icon}" title="${s.tip}" style="font-size:10px;color:${s.color};margin-left:5px;opacity:0.8"></i>`;
+  }
+  const row = document.createElement('div');
+  row.className = `chat-row${isRight?' right':''}`;
+  row.innerHTML = `<div class="chat-meta">${label} · ${time}${statusHtml}</div><div class="bubble ${cls}">${escapeHtml(text)}</div>`;
+  area.appendChild(row);
+}
+
+function scrollChat(){
+  const area = document.getElementById('chat-messages');
+  if(area) setTimeout(() => area.scrollTop = area.scrollHeight, 50);
+}
+
+function escapeHtml(str){ return str.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;') }
+
+/* ══ RENDER FUNCTIONS ══ */
+function renderConvoList(){
+  const filter = document.getElementById('convo-filter')?.value || 'all';
+  const list = document.getElementById('convo-list');
+  if(!list) return;
+
+  let items = [
+    ...STATE.sellers.filter(s => s.msgs.length > 0).map(s => ({...s, _type:'seller'})),
+    ...STATE.buyers.filter(b => b.msgs.length > 0).map(b => ({...b, _type:'buyer'})),
+  ].sort((a,b) => (b.msgs.slice(-1)[0]?.ts||0) - (a.msgs.slice(-1)[0]?.ts||0));
+
+  if(filter === 'seller') items = items.filter(i => i._type==='seller');
+  if(filter === 'buyer') items = items.filter(i => i._type==='buyer');
+  if(filter === 'negotiating') items = items.filter(i => i.status==='negotiating');
+
+  list.innerHTML = items.length ? items.map(item => {
+    const last = item.msgs.slice(-1)[0];
+    const isSelected = STATE.currentConvoId === item.id;
+    const typeIcon = item._type==='seller'?'ti-home':'ti-building';
+    return `<div class="convo-row${isSelected?' selected':''}" onclick="selectConvo('${item.id}','${item._type}')">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:3px">
+        <span style="font-size:12px;font-weight:500"><i class="ti ${typeIcon}" style="font-size:11px;color:var(--text3)"></i> ${item.name}</span>
+        <span class="badge ${statusMap[item.status]||'badge-cold'}" style="font-size:9px">${statusLabel[item.status]||item.status}</span>
+      </div>
+      <div style="font-size:11px;color:var(--text3);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:220px">${last?.text||''}</div>
+      <div style="font-size:10px;color:var(--text3);margin-top:2px">${last?timeAgo(last.ts):''}</div>
+    </div>`;
+  }).join('') : '<div style="font-size:12px;color:var(--text3);padding:20px;text-align:center">No conversations yet</div>';
+  document.getElementById('ai-convo-count').textContent = `${items.filter(i=>i.status!=='lost'&&i.status!=='cold'&&i.status!=='done').length} active conversations`;
+}
+
+function selectConvo(id, type){
+  STATE.currentConvoId = id;
+  STATE.currentConvoType = type;
+  const entity = type==='seller' ? STATE.sellers.find(s=>s.id===id) : STATE.buyers.find(b=>b.id===id);
+  if(!entity) return;
+  renderConvoList();
+  renderConvoDetail(entity, type);
+}
+
+function renderConvoDetail(entity, type){
+  document.getElementById('convo-placeholder').style.display = 'none';
+  const detail = document.getElementById('convo-detail');
+  detail.style.display = 'flex';
+  document.getElementById('owner-msg-row').style.display = 'block';
+  document.getElementById('cd-name').textContent = entity.name;
+  document.getElementById('cd-meta').textContent = `${entity.phone}${entity.address?' · '+entity.address:''} · Score ${entity.score}`;
+  document.getElementById('cd-badge').innerHTML = `<span class="badge ${statusMap[entity.status]||'badge-cold'}">${statusLabel[entity.status]||entity.status}</span>`;
+  const area = document.getElementById('chat-messages');
+  area.innerHTML = '';
+  entity.msgs.forEach(m => appendChatBubble(m.role, m.text, m.time, m.smsStatus));
+  scrollChat();
+  // Actions
+  const actions = document.getElementById('cd-actions');
+  let btns = `<button class="btn btn-sm" onclick="pauseAI('${entity.id}','${type}')"><i class="ti ti-player-pause"></i> Pause AI</button>`;
+  if(type==='seller'){
+    if(entity.status==='warm') btns += `<button class="btn btn-sm btn-success" onclick="openPriceModalForSeller('${entity.id}')"><i class="ti ti-currency-dollar"></i> Set Price Range</button>`;
+    if(entity.status==='done'&&!entity.contractSent) btns += `<button class="btn btn-sm btn-primary" onclick="openContractModal('${entity.id}')"><i class="ti ti-file-upload"></i> Send Contract</button>`;
+  } else {
+    if(entity.status==='done'&&!entity.contractSent) btns += `<button class="btn btn-sm btn-primary" onclick="openBuyerContractModal('${entity.id}')"><i class="ti ti-file-upload"></i> Send Assignment Contract</button>`;
+  }
+  btns += `<button class="btn btn-sm btn-danger" onclick="removeFromPipeline('${entity.id}','${type}')"><i class="ti ti-user-x"></i> Remove</button>`;
+  actions.innerHTML = btns;
+}
+
+function pauseAI(id, type){
+  showToast('AI paused for this conversation. You can send manual messages below.', 'info');
+}
+
+function removeFromPipeline(id, type){
+  if(type==='seller'){
+    const s = STATE.sellers.find(x=>x.id===id);
+    if(s){ s.status='lost'; s.removedAt=Date.now(); }
+  } else {
+    const b = STATE.buyers.find(x=>x.id===id);
+    if(b) b.status='cold';
+  }
+  updateDashboard();
+  renderConvoList();
+  showToast('Lead removed from pipeline.', 'info');
+}
+
+function renderProspects(){
+  const all = STATE.sellers;
+  const active = all.filter(s => s.status !== 'lost');
+  const flagged = all.filter(s => s.status === 'warm');
+  const removed = all.filter(s => s.status === 'lost');
+  document.getElementById('tc-all').textContent = active.length;
+  document.getElementById('tc-flagged').textContent = flagged.length;
+  document.getElementById('tc-removed').textContent = removed.length;
+
+  document.getElementById('seller-table-body').innerHTML = active.map(s => `
+    <tr>
+      <td><div class="score-ring ${scoreClass(s.score)}">${s.score}</div></td>
+      <td><div style="font-weight:500">${s.name}</div><div style="font-size:10px;color:var(--text3)">${s.phone}</div></td>
+      <td style="font-size:12px;color:var(--text2)">${s.address}</td>
+      <td><span class="badge ${statusMap[s.status]||'badge-cold'}">${statusLabel[s.status]||s.status}</span></td>
+      <td style="font-size:11px;color:var(--text3);max-width:140px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${s.msgs.slice(-1)[0]?.text?.slice(0,60)||'—'}...</td>
+      <td style="font-size:11px;color:var(--text3)">${s.msgs.length?timeAgo(s.msgs.slice(-1)[0].ts):'—'}</td>
+      <td><div style="display:flex;gap:5px;flex-wrap:wrap">
+        <button class="btn btn-xs" onclick="selectConvo('${s.id}','seller');nav('conversations')" title="View Conversation"><i class="ti ti-message-2"></i></button>
+        ${s.status==='warm'?`<button class="btn btn-xs btn-success" onclick="openPriceModalForSeller('${s.id}')" title="Set Price Range"><i class="ti ti-currency-dollar"></i> Price</button>`:''}
+        ${s.status==='negotiating'?`<span class="badge badge-negotiating" style="font-size:9px">AI Negotiating</span>`:''}
+        ${s.status==='done'&&!s.contractSent?`<button class="btn btn-xs btn-primary" onclick="openContractModal('${s.id}')" title="Send Contract"><i class="ti ti-file-text"></i> Contract</button>`:''}
+        ${s.status==='done'&&s.contractSent?`<span style="font-size:11px;color:var(--green)"><i class="ti ti-check"></i> Sent</span>`:''}
+        ${s.status==='lost'?`<button class="btn btn-xs" onclick="reinstateSellerUI('${s.id}')" title="Reinstate"><i class="ti ti-refresh"></i></button>`:''}
+      </div></td>
+    </tr>`).join('') || '<tr><td colspan="7" style="text-align:center;color:var(--text3);padding:20px">No sellers yet. Import leads to get started.</td></tr>';
+
+  document.getElementById('flagged-list').innerHTML = flagged.length ? flagged.map(s => `
+    <div style="display:flex;align-items:center;justify-content:space-between;padding:11px 0;border-bottom:1px solid var(--border)">
+      <div><div style="font-size:12px;font-weight:500">${s.name} — ${s.address}</div><div style="font-size:11px;color:var(--text2);margin-top:2px">${s.msgs.slice(-1)[0]?.text?.slice(0,80)||'—'}...</div></div>
+      <button class="btn btn-sm btn-success" onclick="openPriceModalForSeller('${s.id}')"><i class="ti ti-currency-dollar"></i> Set Range</button>
+    </div>`).join('') : '<div style="color:var(--text3);font-size:12px;padding:12px 0">No leads awaiting price range.</div>';
+
+  document.getElementById('removed-list').innerHTML = removed.length ? removed.map(s => `
+    <div style="display:flex;justify-content:space-between;padding:9px 0;border-bottom:1px solid var(--border);font-size:12px">
+      <div><span style="font-weight:500">${s.name}</span><span style="color:var(--text3)"> — ${s.address}</span></div>
+      <div style="font-size:11px;color:var(--text3)">${s.removedAt?timeAgo(s.removedAt):'—'}</div>
+    </div>`).join('') : '<div style="color:var(--text3);font-size:12px;padding:8px 0">No removed leads.</div>';
+}
+
+function renderContracts(){
+  const contracts = STATE.contracts;
+  const active = contracts.filter(c => c.status !== 'assigned').length;
+  const pending = contracts.filter(c => {
+    const seller = STATE.sellers.find(s => s.id === c.sellerId);
+    return c.status === 'pending' && seller && !seller.contractSent;
+  }).length;
+  const assigned = contracts.filter(c => c.status === 'assigned').length;
+  const fees = STATE.buyers.filter(b=>b.agreedFee).map(b=>b.agreedFee);
+  document.getElementById('cm-active').textContent = active;
+  document.getElementById('cm-pending').textContent = pending;
+  document.getElementById('cm-assigned').textContent = assigned;
+  document.getElementById('cm-avg-fee').textContent = fees.length ? fmtMoney(Math.round(fees.reduce((a,b)=>a+b,0)/fees.length)) : '—';
+  document.getElementById('contracts-table-body').innerHTML = contracts.length ? contracts.map(c => {
+    const seller = STATE.sellers.find(s => s.id === c.sellerId);
+    const statusBadge = c.status==='pending'?'badge-pending':c.status==='pitching'?'badge-active':'badge-assigned';
+    const statusTxt = c.status==='pending'?'⚠ Contract Pending':c.status==='pitching'?'Pitching Buyers':'✓ Assigned';
+    return `<tr>
+      <td><div style="font-weight:500">${c.address}</div></td>
+      <td>${c.sellerName}</td>
+      <td style="font-weight:600">${fmtMoney(c.purchasePrice)}</td>
+      <td style="color:var(--green)">${fmtMoney(c.feeMin)} – ${fmtMoney(c.feeMax)}</td>
+      <td><span class="badge ${statusBadge}">${statusTxt}</span></td>
+      <td><div style="display:flex;gap:5px">
+        ${c.status==='pending'&&seller&&!seller.contractSent?`<button class="btn btn-xs btn-primary" onclick="openContractModal('${c.sellerId}')"><i class="ti ti-file-upload"></i> Send</button>`:''}
+        ${c.status==='pitching'?`<button class="btn btn-xs" onclick="nav('buyers')"><i class="ti ti-building"></i> Buyers</button>`:''}
+        ${c.status==='assigned'?`<span style="font-size:11px;color:var(--green)"><i class="ti ti-check"></i> Complete</span>`:''}
+      </div></td>
+    </tr>`;
+  }).join('') : '<tr><td colspan="6" style="text-align:center;color:var(--text3);padding:20px">No contracts yet.</td></tr>';
+  populateBuyerContractSelect();
+}
+
+function populateBuyerContractSelect(){
+  const sel = document.getElementById('buyer-contract-select');
+  if(!sel) return;
+  const contracts = STATE.contracts;
+  sel.innerHTML = contracts.length ?
+    contracts.map(c => `<option value="${c.id}">${c.address} — ${fmtMoney(c.purchasePrice)}</option>`).join('') +
+    '<option value="">No specific contract (prospecting)</option>' :
+    '<option value="">No contracts yet — build seller pipeline first</option>';
+}
+
+function renderBuyers(){
+  document.getElementById('buyers-table-body').innerHTML = STATE.buyers.length ? STATE.buyers.map(b => `
+    <tr>
+      <td><div class="score-ring ${scoreClass(b.score)}">${b.score}</div></td>
+      <td><div style="font-weight:500">${b.name}</div><div style="font-size:10px;color:var(--text3)">${b.phone}</div></td>
+      <td><span class="badge ${b.interest==='High'?'badge-done':b.interest==='Medium'?'badge-warm':'badge-cold'}">${b.interest}</span></td>
+      <td style="font-size:12px;color:var(--green)">${b.agreedFee?fmtMoney(b.agreedFee):b.feeMin?fmtMoney(b.feeMin)+'+'  :'—'}</td>
+      <td style="font-size:12px">${b.followups}/${STATE.maxFollowups}</td>
+      <td><span class="badge ${statusMap[b.status]||'badge-cold'}">${statusLabel[b.status]||b.status}</span></td>
+      <td><button class="btn btn-xs" onclick="selectConvo('${b.id}','buyer');nav('conversations')"><i class="ti ti-message-2"></i></button></td>
+    </tr>`).join('') : '<tr><td colspan="7" style="text-align:center;color:var(--text3);padding:20px">No buyer leads yet.</td></tr>';
+}
+
+function renderNotifications(){
+  const list = document.getElementById('notif-list');
+  if(!list) return;
+  if(!STATE.notifications.length){
+    list.innerHTML = '<div style="font-size:13px;color:var(--text3);text-align:center;padding:40px">No notifications yet. Import leads to get started.</div>';
+    return;
+  }
+  list.innerHTML = [...STATE.notifications].reverse().map((n) => `
+    <div class="notif-item notif-${n.type}" id="notif-${n.id||'x'}">
+      <div style="display:flex;justify-content:space-between;align-items:flex-start">
+        <div class="notif-title"><i class="ti ${n.type==='success'?'ti-check':n.type==='warning'?'ti-alert-circle':n.type==='danger'?'ti-user-x':'ti-info-circle'}"></i> ${n.title}</div>
+        <button class="btn btn-xs" onclick="dismissNotification('${n.id||''}')" style="padding:2px 6px;font-size:10px;opacity:0.6">✕</button>
+      </div>
+      <div class="notif-body">${n.body}</div>
+      ${n.action&&n.actionFn?`<div class="notif-actions"><button class="btn btn-sm" onclick="(STATE.notifications.find(x=>x.id==='${n.id}')?.actionFn||function(){})()"> ${n.action} →</button></div>`:''}
+    </div>`).join('');
+}
+
+/* ══ DASHBOARD UPDATE ══ */
+function updateDashboard(){
+  const sellers = STATE.sellers;
+  const buyers = STATE.buyers;
+  const contracts = STATE.contracts;
+  const total = sellers.length;
+  const newS = sellers.filter(s=>s.status==='new').length;
+  const warm = sellers.filter(s=>s.status==='warm').length;
+  const neg = sellers.filter(s=>s.status==='negotiating').length;
+  const done = sellers.filter(s=>s.status==='done').length;
+  const lost = sellers.filter(s=>s.status==='lost').length;
+  const cold = sellers.filter(s=>s.status==='cold').length;
+  const interested = warm + neg + done;
+  const fees = buyers.filter(b=>b.agreedFee).map(b=>b.agreedFee);
+  const totalFees = fees.reduce((a,b)=>a+b,0);
+
+  document.getElementById('m-contacted').textContent = total;
+  document.getElementById('m-interested').textContent = interested;
+  document.getElementById('m-resp-rate').textContent = total>0?`${Math.round(interested/total*100)}% response rate`:'';
+  document.getElementById('m-negotiating').textContent = neg;
+  document.getElementById('m-revenue').textContent = fmtMoney(totalFees);
+  document.getElementById('m-buyers').textContent = buyers.length;
+  document.getElementById('m-fees').textContent = fmtMoney(totalFees);
+  document.getElementById('pipeline-total').textContent = `${total} total seller leads`;
+
+  // Pipeline bar
+  if(total > 0){
+    document.getElementById('pip-new').style.width = ((newS+cold)/total*100)+'%';
+    document.getElementById('pip-warm').style.width = (warm/total*100)+'%';
+    document.getElementById('pip-neg').style.width = (neg/total*100)+'%';
+    document.getElementById('pip-done').style.width = (done/total*100)+'%';
+    document.getElementById('pip-lost').style.width = (lost/total*100)+'%';
+    document.getElementById('leg-new').textContent = `New (${newS+cold})`;
+    document.getElementById('leg-warm').textContent = `Warm (${warm})`;
+    document.getElementById('leg-neg').textContent = `Negotiating (${neg})`;
+    document.getElementById('leg-done').textContent = `Contracted (${done})`;
+    document.getElementById('leg-lost').textContent = `Not Interested (${lost})`;
+  }
+
+  // Perf stats
+  const inRange = contracts.filter(c=>c.status==='assigned').length;
+  if(done+contracts.filter(c=>c.status!=='pending').length>0){
+    const rangeRate = Math.round(inRange/Math.max(1,contracts.length)*100);
+    document.getElementById('perf-range').textContent = rangeRate+'%';
+    document.getElementById('perf-range-bar').style.width = rangeRate+'%';
+  }
+  const followupResp = sellers.filter(s=>s.followups>1&&s.status!=='new').length;
+  const totalFollowups = sellers.filter(s=>s.followups>1).length;
+  if(totalFollowups>0){
+    const fRate = Math.round(followupResp/totalFollowups*100);
+    document.getElementById('perf-followup').textContent = fRate+'%';
+    document.getElementById('perf-followup-bar').style.width = fRate+'%';
+  }
+
+  // Attention panel
+  const attnItems = [];
+  if(warm>0) attnItems.push({type:'warning',msg:`${warm} interested seller${warm>1?'s':''} waiting for your price range`,action:'Set Price Range',fn:()=>nav('prospects')});
+  const pendingContracts = sellers.filter(s=>s.status==='done'&&!s.contractSent);
+  if(pendingContracts.length) attnItems.push({type:'success',msg:`Deal agreed — send contract to ${pendingContracts[0].name}`,action:'Send Contract',fn:()=>openContractModal(pendingContracts[0].id)});
+  const buyerDeals = buyers.filter(b=>b.status==='done'&&!b.contractSent);
+  if(buyerDeals.length) attnItems.push({type:'success',msg:`Buyer ${buyerDeals[0].name} agreed fee — send assignment contract`,action:'Send Assignment',fn:()=>openBuyerContractModal(buyerDeals[0].id)});
+
+  document.getElementById('dash-attention').innerHTML = attnItems.length ? attnItems.map(a => `
+    <div class="notif-item notif-${a.type}" style="margin-bottom:8px">
+      <div class="notif-body">${a.msg}</div>
+      <div class="notif-actions"><button class="btn btn-xs" onclick="(${a.fn.toString()})()">${a.action} →</button></div>
+    </div>`).join('') : '<div style="font-size:12px;color:var(--text3);padding:12px 0;text-align:center">No pending actions — all good!</div>';
+
+  // Activity
+  document.getElementById('dash-activity').innerHTML = STATE.activity.length ? STATE.activity.slice(-6).reverse().map(a => `
+    <div class="activity-item">
+      <div class="act-icon" style="${activityColorStyle(a.color)}"><i class="ti ti-circle-dot"></i></div>
+      <div><div class="act-text">${a.text}</div><div class="act-time">${timeAgo(a.ts)}</div></div>
+    </div>`).join('') : '<div style="font-size:12px;color:var(--text3);text-align:center;padding:20px">No activity yet.</div>';
+}
+
+/* ══ BADGES ══ */
+function updateBadges(){
+  const warm = STATE.sellers.filter(s=>s.status==='warm').length;
+  const pendingContracts = STATE.contracts.filter(c=>c.status==='pending').length;
+  const notifs = STATE.notifications.length;
+  document.getElementById('nb-warm').textContent = warm;
+  document.getElementById('nb-warm').style.display = warm ? 'inline' : 'none';
+  document.getElementById('nb-contracts').textContent = pendingContracts;
+  document.getElementById('nb-contracts').style.display = pendingContracts ? 'inline' : 'none';
+  document.getElementById('nb-notif').textContent = notifs;
+  document.getElementById('nb-notif').style.display = notifs ? 'inline' : 'none';
+}
+
+/* ══ NOTIFICATIONS ══ */
+function pushNotification(type, title, body, action, actionFn){
+  STATE.notifications.push({type, title, body, action, actionFn});
+  updateBadges();
+  if(document.getElementById('page-notifications').classList.contains('active')) renderNotifications();
+}
+
+/* ══ ACTIVITY ══ */
+function addActivity(text, color='blue'){
+  STATE.activity.push({text, color, ts: Date.now()});
+}
+
+/* ══ ACTIVITY COLOR HELPER ══ */
+function activityColorStyle(color){
+  const map={
+    blue:   'background:rgba(59,130,246,0.12);color:#3b82f6',
+    green:  'background:rgba(34,197,94,0.12);color:#22c55e',
+    red:    'background:rgba(239,68,68,0.12);color:#ef4444',
+    amber:  'background:rgba(245,158,11,0.12);color:#f59e0b',
+    accent: 'background:rgba(108,99,255,0.15);color:#6c63ff',
+    text3:  'background:rgba(90,90,122,0.15);color:#5a5a7a',
+  };
+  return map[color]||'background:rgba(90,90,122,0.15);color:#5a5a7a';
+}
+
+/* ══ ANALYTICS CHARTS — live data from STATE ══ */
+const _CHARTS = {}; // keyed chart instances for updates
+
+function computeAnalyticsData(){
+  const sellers   = STATE.sellers;
+  const buyers    = STATE.buyers;
+  const contracts = Array.isArray(STATE.contracts) ? STATE.contracts : Object.values(STATE.contracts||{});
+
+  // Funnel
+  const contacted   = sellers.length;
+  const responded   = sellers.filter(s=>(s.msgs||[]).some(m=>m.role==='prospect')).length;
+  const interested  = sellers.filter(s=>['warm','negotiating','done'].includes(s.status)).length;
+  const negotiating = sellers.filter(s=>s.status==='negotiating').length;
+  const contracted  = sellers.filter(s=>s.status==='done').length;
+
+  // Weekly outreach — last 8 weeks
+  const now=Date.now(), weekMs=7*24*3600000;
+  const weekLabels=[], sellerW=[], buyerW=[];
+  for(let i=7;i>=0;i--){
+    const ws=now-(i+1)*weekMs, we=now-i*weekMs;
+    weekLabels.push(new Date(we).toLocaleDateString('en-US',{month:'numeric',day:'numeric'}));
+    sellerW.push(sellers.filter(s=>s.ts>=ws&&s.ts<we).length);
+    buyerW.push(buyers.filter(b=>b.ts>=ws&&b.ts<we).length);
+  }
+
+  // Contract savings (asking est. vs. negotiated)
+  const closedContracts = contracts.filter(c=>c.purchasePrice).slice(-6);
+  const savLabels = closedContracts.map(c=>(c.address||'Property').slice(0,12));
+  const asking    = closedContracts.map(c=>Math.round(c.purchasePrice*1.18));
+  const negotiated= closedContracts.map(c=>c.purchasePrice);
+
+  // Follow-up response rates
+  const fuRates=[];
+  for(let fu=1;fu<=5;fu++){
+    const had=sellers.filter(s=>(s.followups||0)>=fu).length;
+    const resp=sellers.filter(s=>(s.followups||0)>=fu&&!['new','cold'].includes(s.status)).length;
+    fuRates.push(had>0?Math.round(resp/had*100):0);
+  }
+
+  // KPI stats
+  const fees=buyers.filter(b=>b.agreedFee).map(b=>b.agreedFee);
+  const revenue=fees.reduce((a,b)=>a+b,0);
+  const nRounds=sellers.filter(s=>(s.offerHistory||[]).length>0).map(s=>s.offerHistory.length);
+  const avgRounds=nRounds.length?(nRounds.reduce((a,b)=>a+b,0)/nRounds.length).toFixed(1):'—';
+
+  return {contacted,responded,interested,negotiating,contracted,weekLabels,sellerW,buyerW,
+          savLabels,asking,negotiated,fuRates,revenue,avgRounds,contracted};
+}
+
+function initCharts(){
+  const d  = computeAnalyticsData();
+  const co = {responsive:true,maintainAspectRatio:false,
+    plugins:{legend:{display:false}},
+    scales:{
+      x:{grid:{display:false},ticks:{color:'#5a5a7a',font:{size:10}}},
+      y:{grid:{color:'rgba(255,255,255,0.04)'},ticks:{color:'#5a5a7a',font:{size:10}}}
+    }
+  };
+
+  if(_CHARTS.outreach){
+    // Update existing chart data
+    _CHARTS.outreach.data.labels = d.weekLabels;
+    _CHARTS.outreach.data.datasets[0].data = d.sellerW;
+    _CHARTS.outreach.data.datasets[1].data = d.buyerW;
+    _CHARTS.outreach.update('none');
+    _CHARTS.funnel.data.datasets[0].data = [d.contacted,d.responded,d.interested,d.negotiating,d.contracted];
+    _CHARTS.funnel.update('none');
+    if(d.savLabels.length){
+      _CHARTS.savings.data.labels = d.savLabels;
+      _CHARTS.savings.data.datasets[0].data = d.asking;
+      _CHARTS.savings.data.datasets[1].data = d.negotiated;
+      _CHARTS.savings.update('none');
+    }
+    _CHARTS.followup.data.datasets[0].data = d.fuRates;
+    _CHARTS.followup.update('none');
+  } else {
+    // Create charts for the first time
+    _CHARTS.outreach = new Chart(document.getElementById('outreachChart'),{
+      type:'bar',
+      data:{labels:d.weekLabels,datasets:[
+        {label:'Sellers',data:d.sellerW,backgroundColor:'rgba(59,130,246,0.7)'},
+        {label:'Buyers', data:d.buyerW, backgroundColor:'rgba(245,158,11,0.7)'}
+      ]},
+      options:{...co,plugins:{legend:{display:true,labels:{color:'#9898b8',font:{size:10}}}}}
+    });
+
+    _CHARTS.funnel = new Chart(document.getElementById('funnelChart'),{
+      type:'bar',
+      data:{
+        labels:['Contacted','Responded','Interested','Negotiating','Contracted'],
+        datasets:[{data:[d.contacted,d.responded,d.interested,d.negotiating,d.contracted],
+          backgroundColor:['rgba(59,130,246,0.7)','rgba(245,158,11,0.7)','rgba(139,92,246,0.7)','rgba(34,197,94,0.7)','rgba(34,197,94,1)']
+        }]
+      },options:co
+    });
+
+    const moneyOpts={...co,scales:{
+      x:{grid:{display:false},ticks:{color:'#5a5a7a',font:{size:10}}},
+      y:{grid:{color:'rgba(255,255,255,0.04)'},ticks:{color:'#5a5a7a',font:{size:10},callback:v=>'$'+(v/1000).toFixed(0)+'K'}}
+    }};
+    _CHARTS.savings = new Chart(document.getElementById('savingsChart'),{
+      type:'bar',
+      data:{
+        labels: d.savLabels.length ? d.savLabels : ['No contracts yet'],
+        datasets:[
+          {label:'Est. Asking', data:d.asking.length?d.asking:[0],  backgroundColor:'rgba(59,130,246,0.5)'},
+          {label:'Negotiated',  data:d.negotiated.length?d.negotiated:[0], backgroundColor:'rgba(34,197,94,0.7)'}
+        ]
+      },
+      options:{...moneyOpts,plugins:{legend:{display:true,labels:{color:'#9898b8',font:{size:10}}}}}
+    });
+
+    const pctOpts={...co,scales:{
+      x:{grid:{display:false},ticks:{color:'#5a5a7a',font:{size:10}}},
+      y:{grid:{color:'rgba(255,255,255,0.04)'},ticks:{color:'#5a5a7a',font:{size:10},callback:v=>v+'%'},max:100}
+    }};
+    _CHARTS.followup = new Chart(document.getElementById('followupChart'),{
+      type:'bar',
+      data:{labels:['Follow-up #1','#2','#3','#4','#5'],datasets:[
+        {data:d.fuRates,backgroundColor:'rgba(139,92,246,0.7)'}
+      ]},options:pctOpts
+    });
+  }
+
+  // Update KPI cards with live data
+  const {contacted,interested,contracted} = d;
+  const convRate = contacted>0 ? Math.round(interested/contacted*100)+'%' : '—';
+  const closeRate= interested>0? Math.round(contracted/interested*100)+'%' : '—';
+  document.getElementById('an-conv').textContent    = convRate;
+  document.getElementById('an-close').textContent   = closeRate;
+  document.getElementById('an-rounds').textContent  = d.avgRounds;
+  document.getElementById('an-rev').textContent     = fmtMoney(d.revenue);
+}
+
+/* ══ SCRIPT PREVIEW ══ */
+function refreshScriptPreview(){
+  const persona = document.getElementById('ai-persona')?.value || 'Alex';
+  const company = document.getElementById('company-name')?.value || 'HomeFlex Acquisitions';
+  document.getElementById('script-preview').textContent = `Hi [Name], my name is ${persona} with ${company}. We buy homes directly from homeowners in this area — no agents, no commissions, fast cash close. I'm reaching out about your property at [Address]. Are you by any chance considering selling? Happy to make a fair offer with no strings attached.`;
+}
+
+/* ══ STEP FLOW ══ */
+function updateStepFlow(step){
+  for(let i=1;i<=4;i++){
+    const el = document.getElementById('sc'+i);
+    if(!el) continue;
+    el.className = 'step-circle' + (i<step?' done':i===step?' active':'');
+    if(i<step) el.innerHTML = '<i class="ti ti-check" style="font-size:12px"></i>';
+    else el.textContent = i;
+  }
+}
+
+/* ══ RANDOM NAME GENERATORS (for demo leads) ══ */
+function randomSellerName(){
+  const f=['Marcus','Sandra','David','Patricia','James','Helen','Robert','Carol','Michael','Diane','William','Gloria','Anthony','Brenda','Thomas','Sarah'];
+  const l=['Johnson','Lee','Park','Nguyen','Carter','Wright','Kim','Bass','Thompson','Foster','Reed','Brooks','Morgan','Hayes','Coleman','Gray'];
+  return `${f[Math.floor(Math.random()*f.length)]} ${l[Math.floor(Math.random()*l.length)]}`;
+}
+function randomBuyerName(){
+  const names=['Premier Investments LLC','Oak Street Realty Group','GreenLeaf Capital Partners','Hometown Buyers Inc','Alpha Property Ventures','RiverCity Flippers','MetroWest Investors','Bluegrass RE Holdings'];
+  return names[Math.floor(Math.random()*names.length)];
+}
+function randomAddress(){
+  const nums=[118,229,442,780,1015,1234,51,324,667,999];
+  const streets=['Maple Ave','Oak Blvd','Sunrise Dr','Birch Ct','Walnut Ln','Pine St','Cedar Dr','Elm St','River Rd','Poplar Way'];
+  return `${nums[Math.floor(Math.random()*nums.length)]} ${streets[Math.floor(Math.random()*streets.length)]}`;
+}
+
+/* ══ APPROVE AI MESSAGE (from modal) ══ */
+function approveAIMessage(){
+  closeModal('aiResponseModal');
+}
+
+/* ══ BACKEND INTEGRATION ══════════════════════════════════════
+   Production mode: connects to Node.js backend with Twilio SMS.
+   Demo mode: uses existing simulation (no backend required).
+══════════════════════════════════════════════════════════════ */
+
+const BACKEND = {
+  url:       localStorage.getItem('df_backend_url') || '',
+  connected: false,
+  mode:      'demo',  // 'demo' | 'production'
+  pollTimer: null,
+  lastPoll:  null,
+  smsSent:   0,
+  smsRecv:   0,
+  smsFail:   0,
+  smsDeliv:  0,
+};
+
+// ── Connect to backend ──
+async function connectBackend(){
+  const url = (document.getElementById('cfg-backend-url')?.value || '').trim().replace(/\/$/,'');
+  if(!url){ showToast('Enter a backend URL first.','error'); return; }
+  BACKEND.url = url;
+  localStorage.setItem('df_backend_url', url);
+  showToast('Connecting to backend...','info');
+  try {
+    const res = await fetch(`${url}/api/health`, {signal: AbortSignal.timeout(5000)});
+    if(!res.ok) throw new Error(`HTTP ${res.status}`);
+    const data = await res.json();
+    BACKEND.connected = true;
+    BACKEND.mode = data.mode || 'demo';
+    updateGWStatus();
+    showToast(`✅ Connected! Mode: ${BACKEND.mode}`, 'success');
+    // Pull current settings from backend
+    await loadSettingsFromBackend();
+    // Start polling
+    startPolling();
+    // Update webhook URL display
+    const webhookInput = document.getElementById('webhook-url-display');
+    if(webhookInput) webhookInput.value = `${url}/api/webhook/twilio`;
+  } catch(e) {
+    BACKEND.connected = false;
+    showToast(`Connection failed: ${e.message}`, 'error');
+    updateGWStatus();
+  }
+}
+
+// ── Load settings from backend ──
+async function loadSettingsFromBackend(){
+  if(!BACKEND.connected) return;
+  try {
+    const res = await fetch(`${BACKEND.url}/api/settings`);
+    const data = await res.json();
+    // Populate UI fields (don't show redacted secrets)
+    if(document.getElementById('cfg-persona'))  document.getElementById('cfg-persona').value  = data.ai_persona || 'Alex';
+    if(document.getElementById('cfg-company'))  document.getElementById('cfg-company').value  = data.company_name || 'HomeFlex Acquisitions';
+    if(document.getElementById('cfg-tone'))     document.getElementById('cfg-tone').value     = data.msg_tone || 'professional';
+    if(document.getElementById('cfg-max-fu'))   document.getElementById('cfg-max-fu').value   = data.max_followups || '5';
+    if(document.getElementById('cfg-fu-delay')) document.getElementById('cfg-fu-delay').value = data.followup_delay_hours || '24';
+    if(document.getElementById('cfg-twilio-from') && data.twilio_from) document.getElementById('cfg-twilio-from').value = data.twilio_from;
+  } catch(e) { console.warn('Settings load:', e.message); }
+}
+
+// ── Save Twilio / gateway settings ──
+async function saveGatewaySettings(){
+  if(!BACKEND.connected){ showToast('Connect to backend first.','error'); return; }
+  const payload = {};
+  const sid   = document.getElementById('cfg-twilio-sid')?.value.trim();
+  const token = document.getElementById('cfg-twilio-token')?.value.trim();
+  const from  = document.getElementById('cfg-twilio-from')?.value.trim();
+  const aiKey = document.getElementById('cfg-anthropic-key')?.value.trim();
+  if(sid)   payload.twilio_sid   = sid;
+  if(token) payload.twilio_token = token;
+  if(from)  payload.twilio_from  = from;
+  if(aiKey) payload.anthropic_key = aiKey;
+  if(!Object.keys(payload).length){ showToast('Fill in at least one credential.','error'); return; }
+  try {
+    const res = await fetch(`${BACKEND.url}/api/settings`, {
+      method: 'POST', headers: {'Content-Type':'application/json'}, body: JSON.stringify(payload)
+    });
+    if(!res.ok) throw new Error(`HTTP ${res.status}`);
+    // Re-check mode
+    const health = await (await fetch(`${BACKEND.url}/api/health`)).json();
+    BACKEND.mode = health.mode;
+    updateGWStatus();
+    showToast('✅ Gateway credentials saved!', 'success');
+    // Clear inputs for security
+    if(document.getElementById('cfg-twilio-sid'))   document.getElementById('cfg-twilio-sid').value = '';
+    if(document.getElementById('cfg-twilio-token')) document.getElementById('cfg-twilio-token').value = '';
+    if(document.getElementById('cfg-anthropic-key')) document.getElementById('cfg-anthropic-key').value = '';
+  } catch(e) { showToast(`Save failed: ${e.message}`, 'error'); }
+}
+
+// ── Save AI settings ──
+async function saveAISettings(){
+  const payload = {
+    ai_persona:            document.getElementById('cfg-persona')?.value  || 'Alex',
+    company_name:          document.getElementById('cfg-company')?.value  || 'HomeFlex Acquisitions',
+    msg_tone:              document.getElementById('cfg-tone')?.value     || 'professional',
+    max_followups:         document.getElementById('cfg-max-fu')?.value   || '5',
+    followup_delay_hours:  document.getElementById('cfg-fu-delay')?.value || '24',
+  };
+  // Update local STATE
+  STATE.aiPersona   = payload.ai_persona;
+  STATE.companyName = payload.company_name;
+  STATE.maxFollowups = parseInt(payload.max_followups);
+  refreshScriptPreview();
+  if(BACKEND.connected){
+    try {
+      await fetch(`${BACKEND.url}/api/settings`, {
+        method: 'POST', headers: {'Content-Type':'application/json'}, body: JSON.stringify(payload)
+      });
+      showToast('✅ AI settings saved to backend!', 'success');
+    } catch(e) { showToast(`Save failed: ${e.message}`, 'error'); }
+  } else {
+    localStorage.setItem('df_ai_settings', JSON.stringify(payload));
+    showToast('AI settings saved locally (demo mode).', 'success');
+  }
+}
+
+// ── Test SMS gateway ──
+async function testGateway(){
+  if(!BACKEND.connected){ showToast('Connect to backend first.','error'); return; }
+  const phone = document.getElementById('cfg-test-phone')?.value.trim();
+  if(!phone){ showToast('Enter a phone number to test.','error'); return; }
+  try {
+    const res = await fetch(`${BACKEND.url}/api/settings/test-twilio`, {
+      method: 'POST', headers: {'Content-Type':'application/json'}, body: JSON.stringify({testPhone: phone})
+    });
+    const data = await res.json();
+    if(data.ok){
+      showToast(`✅ Test SMS sent! SID: ${data.sid}`, 'success');
+      BACKEND.smsSent++;
+      renderGWStats();
+    } else {
+      showToast(`❌ Test failed: ${data.error}`, 'error');
+    }
+  } catch(e) { showToast(`Test failed: ${e.message}`, 'error'); }
+}
+
+function copyWebhook(){
+  const val = document.getElementById('webhook-url-display')?.value;
+  if(!val || val.includes('Connect backend')) return;
+  navigator.clipboard.writeText(val).then(() => showToast('Webhook URL copied!','success'));
+}
+
+// ── Gateway status UI update ──
+function updateGWStatus(){
+  const dot   = document.getElementById('gw-dot');
+  const label = document.getElementById('gw-status-label');
+  const mode  = document.getElementById('ai-mode-label');
+  if(!BACKEND.connected){
+    if(dot)   { dot.style.background = 'var(--text3)'; }
+    if(label) { label.textContent = 'No backend connected'; label.style.color = 'var(--text3)'; }
+    if(mode)  { mode.textContent = 'Demo Mode'; }
+  } else if(BACKEND.mode === 'production'){
+    if(dot)   { dot.style.background = 'var(--green)'; }
+    if(label) { label.textContent = 'Twilio SMS Active'; label.style.color = 'var(--green)'; }
+    if(mode)  { mode.textContent = '🟢 Live SMS Active'; }
+  } else {
+    if(dot)   { dot.style.background = 'var(--amber)'; }
+    if(label) { label.textContent = 'Backend: Demo Mode'; label.style.color = 'var(--amber)'; }
+    if(mode)  { mode.textContent = '🟡 Backend (Demo)'; }
+  }
+  // Update settings page badges
+  const backendBadge = document.getElementById('backend-status-badge');
+  const twilioBadge  = document.getElementById('twilio-status-badge');
+  if(backendBadge) backendBadge.innerHTML = BACKEND.connected
+    ? '<span class="badge badge-done">Connected</span>'
+    : '<span class="badge badge-cold">Disconnected</span>';
+  if(twilioBadge) twilioBadge.innerHTML = BACKEND.mode === 'production'
+    ? '<span class="badge badge-done">Active</span>'
+    : '<span class="badge badge-cold">Not Configured</span>';
+  // Gateway status panel
+  const modeIcon = document.getElementById('gw-mode-icon');
+  const modeText = document.getElementById('gw-mode-text');
+  const modeSub  = document.getElementById('gw-mode-sub');
+  if(modeIcon && modeText && modeSub){
+    if(BACKEND.mode === 'production'){
+      modeIcon.textContent = '📱';
+      modeText.textContent = 'Twilio SMS — Production';
+      modeText.style.color = 'var(--green)';
+      modeSub.textContent  = 'Real SMS messages being sent and received';
+    } else if(BACKEND.connected){
+      modeIcon.textContent = '🔌';
+      modeText.textContent = 'Backend Connected — Demo Mode';
+      modeText.style.color = 'var(--amber)';
+      modeSub.textContent  = 'Add Twilio credentials to enable real SMS';
+    } else {
+      modeIcon.textContent = '🧪';
+      modeText.textContent = 'Demo Mode';
+      modeText.style.color = '';
+      modeSub.textContent  = 'Simulated conversations — no real SMS';
+    }
+  }
+}
+
+function renderGWStats(){
+  const e = id => document.getElementById(id);
+  if(e('gw-sent-count'))  e('gw-sent-count').textContent  = BACKEND.smsSent;
+  if(e('gw-recv-count'))  e('gw-recv-count').textContent  = BACKEND.smsRecv;
+  if(e('gw-fail-count'))  e('gw-fail-count').textContent  = BACKEND.smsFail;
+  if(e('gw-deliv-count')) e('gw-deliv-count').textContent = BACKEND.smsDeliv;
+}
+
+function renderSettingsPage(){
+  // Set backend URL if saved
+  const urlInput = document.getElementById('cfg-backend-url');
+  if(urlInput && BACKEND.url && !urlInput.value) urlInput.value = BACKEND.url;
+  const webhookInput = document.getElementById('webhook-url-display');
+  if(webhookInput && BACKEND.url && BACKEND.connected) webhookInput.value = `${BACKEND.url}/api/webhook/twilio`;
+  updateGWStatus();
+  renderGWStats();
+}
+
+// ── Backend state polling ──
+function startPolling(){
+  if(BACKEND.pollTimer) clearInterval(BACKEND.pollTimer);
+  BACKEND.pollTimer = setInterval(pollBackend, 3000);
+  pollBackend(); // immediate first poll
+}
+
+function stopPolling(){
+  if(BACKEND.pollTimer){ clearInterval(BACKEND.pollTimer); BACKEND.pollTimer = null; }
+}
+
+async function pollBackend(){
+  if(!BACKEND.connected || !BACKEND.url) return;
+  try {
+    const res = await fetch(`${BACKEND.url}/api/state`, {signal: AbortSignal.timeout(4000)});
+    if(!res.ok){ BACKEND.connected = false; updateGWStatus(); return; }
+    const data = await res.json();
+    syncFromBackend(data);
+    BACKEND.lastPoll = Date.now();
+  } catch(e) {
+    // Don't mark disconnected on transient errors — wait 3 more polls
+    console.warn('[Poll]', e.message);
+  }
+}
+
+function syncFromBackend(data){
+  let changed = false;
+  const { sellers = [], buyers = [], contracts = [], notifications = [], activity = [] } = data;
+
+  // ── Sync sellers ──
+  sellers.forEach(bSeller => {
+    const existing = STATE.sellers.find(s => s.id === bSeller.id || s.phone === bSeller.phone);
+    if(!existing){
+      STATE.sellers.push(normalizeSeller(bSeller));
+      changed = true;
+    } else {
+      // Merge — backend is source of truth for status / msgs
+      const prevMsgCount = existing.msgs.length;
+      Object.assign(existing, normalizeSeller(bSeller));
+      if(existing.msgs.length !== prevMsgCount) changed = true;
+    }
+  });
+
+  // ── Sync buyers ──
+  buyers.forEach(bBuyer => {
+    const existing = STATE.buyers.find(b => b.id === bBuyer.id || b.phone === bBuyer.phone);
+    if(!existing){
+      STATE.buyers.push(normalizeBuyer(bBuyer));
+      changed = true;
+    } else {
+      const prevMsgCount = existing.msgs.length;
+      Object.assign(existing, normalizeBuyer(bBuyer));
+      if(existing.msgs.length !== prevMsgCount) changed = true;
+    }
+  });
+
+  // ── Sync contracts ──
+  contracts.forEach(c => {
+    const existing = STATE.contracts.find(x => x.id === c.id);
+    if(!existing) { STATE.contracts.push(c); changed = true; }
+    else if(existing.status !== c.status){ Object.assign(existing, c); changed = true; }
+  });
+
+  // ── Sync notifications ──
+  const existingNotifIds = new Set(STATE.notifications.map(n => n.id));
+  notifications.forEach(n => {
+    if(!existingNotifIds.has(n.id)){
+      STATE.notifications.push({
+        id: n.id, type: n.type, title: n.title, body: n.body,
+        action: n.action_label,
+        actionFn: buildNotifAction(n.action_data || n.actionData),
+      });
+      changed = true;
+    }
+  });
+
+  // ── Sync activity ──
+  const existingActIds = new Set((STATE.activity||[]).map(a => a.id));
+  activity.forEach(a => {
+    if(!existingActIds.has(a.id)){
+      STATE.activity = STATE.activity || [];
+      STATE.activity.push({ id: a.id, text: a.text, color: a.color, ts: a.ts });
+      changed = true;
+    }
+  });
+
+  // ── Update SMS stats ──
+  let sent = 0, recv = 0, fail = 0, deliv = 0;
+  [...sellers, ...buyers].forEach(entity => {
+    (entity.msgs || []).forEach(m => {
+      if(m.role === 'ai')       { sent++; if(m.sms_status === 'delivered') deliv++; if(m.sms_status === 'failed') fail++; }
+      if(m.role === 'prospect') recv++;
+    });
+  });
+  BACKEND.smsSent  = sent;
+  BACKEND.smsRecv  = recv;
+  BACKEND.smsFail  = fail;
+  BACKEND.smsDeliv = deliv;
+
+  if(changed){
+    updateDashboard();
+    updateBadges();
+    renderGWStats();
+    // If convo panel is open, refresh it
+    if(STATE.currentConvoId){
+      const entity = STATE.currentConvoType === 'seller'
+        ? STATE.sellers.find(s => s.id === STATE.currentConvoId)
+        : STATE.buyers.find(b => b.id === STATE.currentConvoId);
+      if(entity) renderConvoDetail(entity, STATE.currentConvoType);
+      renderConvoList();
+    }
+    // Refresh whichever page is currently active
+    const activePage = document.querySelector('.page.active')?.id?.replace('page-','');
+    if(activePage === 'prospects')     renderProspects();
+    if(activePage === 'buyers')        renderBuyers();
+    if(activePage === 'contracts')     renderContracts();
+    if(activePage === 'notifications') renderNotifications();
+  }
+}
+
+function normalizeSeller(s){
+  return {
+    ...s,
+    type: 'seller',
+    offer_history: undefined,
+    offerHistory: Array.isArray(s.offer_history) ? s.offer_history : (s.offerHistory || []),
+    priceMin: s.price_min || s.priceMin || null,
+    priceMax: s.price_max || s.priceMax || null,
+    priceLowball: s.price_lowball || s.priceLowball || null,
+    priceNotes: s.price_notes || s.priceNotes || '',
+    negotiationActive: !!(s.negotiation_active || s.negotiationActive),
+    agreedPrice: s.agreed_price || s.agreedPrice || null,
+    contractSent: !!(s.contract_sent || s.contractSent),
+    removedAt: s.removed_at || s.removedAt || null,
+    msgs: (s.msgs || []).map(m => ({
+      ...m,
+      text: m.content || m.text,
+      time: m.time || new Date(m.created_at||Date.now()).toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'}),
+      ts:   m.ts   || new Date(m.created_at||Date.now()).getTime(),
+      smsStatus: m.sms_status || m.smsStatus || 'demo'
+    })),
+  };
+}
+
+function normalizeBuyer(b){
+  return {
+    ...b,
+    type: 'buyer',
+    feeMin: b.fee_min || b.feeMin || 8000,
+    feeMax: b.fee_max || b.feeMax || 15000,
+    feeNegotiating: b.fee_negotiating || b.feeNegotiating || null,
+    agreedFee: b.agreed_fee || b.agreedFee || null,
+    contractSent: !!(b.contract_sent || b.contractSent),
+    contractId: b.contract_id || b.contractId || null,
+    msgs: (b.msgs || []).map(m => ({
+      ...m,
+      text: m.content || m.text,
+      time: m.time || new Date(m.created_at||Date.now()).toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'}),
+      ts:   m.ts   || new Date(m.created_at||Date.now()).getTime(),
+      smsStatus: m.sms_status || m.smsStatus || 'demo'
+    })),
+  };
+}
+
+function buildNotifAction(actionData){
+  if(!actionData) return null;
+  const d = typeof actionData === 'string' ? JSON.parse(actionData) : actionData;
+  if(!d?.action) return null;
+  if(d.action === 'set_price')        return () => { nav('prospects'); openPriceModalForSeller(d.sellerId); };
+  if(d.action === 'send_contract')    return () => openContractModal(d.sellerId);
+  if(d.action === 'send_assignment')  return () => openBuyerContractModal(d.buyerId);
+  return null;
+}
+
+// ── Override launchSellerCampaign to use backend in production mode ──
+const _origLaunchSeller = launchSellerCampaign;
+async function launchSellerCampaign(){
+  if(!BACKEND.connected){
+    _origLaunchSeller();
+    return;
+  }
+  // Production mode — send to backend
+  const raw = document.getElementById('sellerInput').value.trim();
+  if(!raw){ showToast('Paste at least one phone number first.','error'); return; }
+  const parsed = parsePhoneList(raw);
+  if(!parsed.length){ showToast('Could not parse any valid phone numbers.','error'); return; }
+
+  STATE.aiPersona   = document.getElementById('ai-persona').value.trim() || 'Alex';
+  STATE.companyName = document.getElementById('company-name').value.trim() || 'HomeFlex Acquisitions';
+  STATE.maxFollowups = parseInt(document.getElementById('max-followups').value) || 5;
+
+  const config = {
+    persona:      STATE.aiPersona,
+    company:      STATE.companyName,
+    tone:         document.getElementById('msg-tone')?.value || 'professional',
+    maxFollowups: STATE.maxFollowups,
+  };
+
+  try {
+    showToast('Launching campaign via Twilio SMS...', 'info');
+    const res = await fetch(`${BACKEND.url}/api/campaigns/seller`, {
+      method: 'POST',
+      headers: {'Content-Type':'application/json'},
+      body: JSON.stringify({ leads: parsed, config })
+    });
+    const result = await res.json();
+    if(result.error) throw new Error(result.error);
+    showToast(`✅ ${result.added} leads launched via real SMS!`, 'success');
+    document.getElementById('sellerInput').value = '';
+    updateStepFlow(2);
+    nav('prospects');
+    // Trigger immediate poll to sync new leads
+    setTimeout(pollBackend, 1000);
+  } catch(e){
+    showToast(`Launch failed: ${e.message}`, 'error');
+  }
+}
+
+// ── Override launchBuyerCampaign to use backend in production mode ──
+const _origLaunchBuyer = launchBuyerCampaign;
+async function launchBuyerCampaign(){
+  if(!BACKEND.connected){
+    _origLaunchBuyer();
+    return;
+  }
+  const raw = document.getElementById('buyerInput').value.trim();
+  if(!raw){ showToast('Paste buyer phone numbers first.','error'); return; }
+  const feeMin = parseInt(document.getElementById('buyer-fee-min').value) || 8000;
+  const feeMax = parseInt(document.getElementById('buyer-fee-max').value) || 15000;
+  const contractId = document.getElementById('buyer-contract-select').value || null;
+  const parsed = parsePhoneList(raw);
+  if(!parsed.length){ showToast('No valid phone numbers found.','error'); return; }
+
+  const config = {
+    persona: STATE.aiPersona, company: STATE.companyName,
+    feeMin, feeMax, contractId
+  };
+
+  try {
+    showToast('Launching buyer campaign via Twilio SMS...', 'info');
+    const res = await fetch(`${BACKEND.url}/api/campaigns/buyer`, {
+      method: 'POST',
+      headers: {'Content-Type':'application/json'},
+      body: JSON.stringify({ leads: parsed, config })
+    });
+    const result = await res.json();
+    if(result.error) throw new Error(result.error);
+    showToast(`✅ ${result.added} buyer leads launched!`, 'success');
+    document.getElementById('buyerInput').value = '';
+    nav('buyers');
+    setTimeout(pollBackend, 1000);
+  } catch(e){
+    showToast(`Launch failed: ${e.message}`, 'error');
+  }
+}
+
+// ── Override activateNegotiation to use backend in production ──
+const _origActivateNeg = activateNegotiation;
+async function activateNegotiation(){
+  if(!BACKEND.connected){ await _origActivateNeg(); return; }
+  const sellerId = document.getElementById('price-modal-seller').value || STATE.pendingContractSellerId;
+  const min      = parseInt(document.getElementById('price-min').value);
+  const max      = parseInt(document.getElementById('price-max').value);
+  const lowball  = parseInt(document.getElementById('price-lowball').value) || min;
+  const notes    = document.getElementById('price-notes').value;
+  if(!min||!max||min>=max){ showToast('Enter valid min/max price range.','error'); return; }
+  closeModal('priceModal');
+  try {
+    const res = await fetch(`${BACKEND.url}/api/sellers/${sellerId}/price`, {
+      method: 'POST',
+      headers: {'Content-Type':'application/json'},
+      body: JSON.stringify({ priceMin: min, priceMax: max, priceLowball: lowball, priceNotes: notes })
+    });
+    const data = await res.json();
+    if(data.error) throw new Error(data.error);
+    showToast('AI negotiation activated — opening offer sent via SMS!', 'success');
+    setTimeout(pollBackend, 1000);
+  } catch(e){
+    showToast(`Negotiation error: ${e.message}`, 'error');
+  }
+}
+
+// ── Override sendContract to use backend in production ──
+const _origSendContract = sendContract;
+async function sendContract(){
+  if(!BACKEND.connected){ await _origSendContract(); return; }
+  const seller = STATE.sellers.find(s => s.id === STATE.pendingContractSellerId);
+  if(!seller){ closeModal('contractModal'); return; }
+  const delivery = document.getElementById('contract-delivery').value;
+  try {
+    const res = await fetch(`${BACKEND.url}/api/sellers/${seller.id}/contract`, {
+      method: 'POST',
+      headers: {'Content-Type':'application/json'},
+      body: JSON.stringify({ deliveryMethod: delivery })
+    });
+    const data = await res.json();
+    if(data.error) throw new Error(data.error);
+    showToast(`Contract confirmation sent to ${seller.name} via SMS!`, 'success');
+    closeModal('contractModal');
+    setTimeout(pollBackend, 800);
+  } catch(e){
+    showToast(`Send error: ${e.message}`, 'error');
+  }
+}
+
+// ── Override sendBuyerContract to use backend in production ──
+const _origSendBuyerContract = sendBuyerContract;
+async function sendBuyerContract(){
+  if(!BACKEND.connected){ await _origSendBuyerContract(); return; }
+  const buyer = STATE.buyers.find(b => b.id === STATE.pendingBuyerContractId);
+  if(!buyer){ closeModal('buyerContractModal'); return; }
+  try {
+    const res = await fetch(`${BACKEND.url}/api/buyers/${buyer.id}/contract`, {
+      method: 'POST', headers: {'Content-Type':'application/json'}, body: JSON.stringify({})
+    });
+    const data = await res.json();
+    if(data.error) throw new Error(data.error);
+    showToast(`Assignment contract confirmation sent to ${buyer.name}!`, 'success');
+    closeModal('buyerContractModal');
+    setTimeout(pollBackend, 800);
+  } catch(e){
+    showToast(`Send error: ${e.message}`, 'error');
+  }
+}
+
+// ── Override sendOwnerMessage to use backend in production ──
+const _origSendOwnerMsg = sendOwnerMessage;
+function sendOwnerMessage(){
+  if(!BACKEND.connected){ _origSendOwnerMsg(); return; }
+  const input = document.getElementById('owner-msg-input');
+  const msg   = input.value.trim();
+  if(!msg || !STATE.currentConvoId) return;
+  const type = STATE.currentConvoType;
+  fetch(`${BACKEND.url}/api/leads/${type}/${STATE.currentConvoId}/message`, {
+    method: 'POST',
+    headers: {'Content-Type':'application/json'},
+    body: JSON.stringify({ message: msg })
+  }).then(r => r.json()).then(d => {
+    if(d.ok){ input.value = ''; setTimeout(pollBackend, 500); }
+    else showToast(`Send failed: ${d.error}`, 'error');
+  }).catch(e => showToast(`Error: ${e.message}`, 'error'));
+}
+
+// ── Override removeFromPipeline to use backend in production ──
+const _origRemove = removeFromPipeline;
+function removeFromPipeline(id, type){
+  if(!BACKEND.connected){ _origRemove(id, type); return; }
+  fetch(`${BACKEND.url}/api/leads/${type}/${id}`, {method:'DELETE'})
+    .then(() => { setTimeout(pollBackend, 500); showToast('Lead removed.','info'); })
+    .catch(e => showToast(`Error: ${e.message}`, 'error'));
+}
+
+// ── Override pauseAI to use backend in production ──
+const _origPauseAI = pauseAI;
+function pauseAI(id, type){
+  if(!BACKEND.connected){ _origPauseAI(id, type); return; }
+  fetch(`${BACKEND.url}/api/leads/${type}/${id}/pause`, {
+    method: 'POST', headers: {'Content-Type':'application/json'}, body: JSON.stringify({ paused: true })
+  }).then(() => showToast('AI paused. You can now send manual messages.', 'info'))
+    .catch(e => showToast(`Error: ${e.message}`, 'error'));
+}
+
+// ── Auto-restore backend connection on page load ──
+(function initBackend(){
+  const savedUrl = localStorage.getItem('df_backend_url');
+  const savedSettings = localStorage.getItem('df_ai_settings');
+  if(savedSettings){
+    try {
+      const s = JSON.parse(savedSettings);
+      STATE.aiPersona   = s.ai_persona   || STATE.aiPersona;
+      STATE.companyName = s.company_name || STATE.companyName;
+      STATE.maxFollowups = parseInt(s.max_followups||'5');
+    } catch(e){}
+  }
+  if(savedUrl){
+    BACKEND.url = savedUrl;
+    // Try to reconnect silently
+    fetch(`${savedUrl}/api/health`, {signal: AbortSignal.timeout(3000)})
+      .then(r => r.json())
+      .then(data => {
+        BACKEND.connected = true;
+        BACKEND.mode = data.mode || 'demo';
+        updateGWStatus();
+        startPolling();
+        console.log(`[DealFlow] Auto-reconnected to ${savedUrl} (${BACKEND.mode})`);
+      })
+      .catch(() => {
+        console.log('[DealFlow] Backend not available — running in demo mode');
+        updateGWStatus();
+      });
+  } else {
+    updateGWStatus();
+  }
+})();
+
+document.getElementById('ai-persona')?.addEventListener('input', refreshScriptPreview);
+document.getElementById('company-name')?.addEventListener('input', refreshScriptPreview);
+document.getElementById('msg-tone')?.addEventListener('change', refreshScriptPreview);
+
+/* ══════════════════════════════════════════════════════════
+   PRODUCTION ADDITIONS — v2.1
+   Manual contract, CSV export, notification dismiss,
+   reinstate, seller detail view, auto-reconnect, analytics
+══════════════════════════════════════════════════════════ */
+
+/* ── CSV Export ── */
+function exportCSV(type){
+  let rows, headers;
+  try {
+    if(type==='sellers'){
+      headers=['Name','Phone','Address','Status','Score','Follow-ups','Agreed Price','Messages','Added'];
+      rows=STATE.sellers.map(s=>[s.name,s.phone,s.address||'',s.status,s.score,s.followups||0,
+        s.agreedPrice?fmtMoney(s.agreedPrice):'',s.msgs?.length||0,
+        s.ts?new Date(s.ts).toLocaleDateString():'']);
+    } else if(type==='buyers'){
+      headers=['Name','Phone','Status','Interest','Fee Min','Fee Max','Agreed Fee','Follow-ups','Added'];
+      rows=STATE.buyers.map(b=>[b.name,b.phone,b.status,b.interest||'Unknown',
+        fmtMoney(b.feeMin||0),fmtMoney(b.feeMax||0),
+        b.agreedFee?fmtMoney(b.agreedFee):'',b.followups||0,
+        b.ts?new Date(b.ts).toLocaleDateString():'']);
+    } else if(type==='contracts'){
+      const contracts=Array.isArray(STATE.contracts)?STATE.contracts:Object.values(STATE.contracts||{});
+      headers=['Address','Seller','Purchase Price','Fee Min','Fee Max','Status','Added'];
+      rows=contracts.map(c=>[c.address||'',c.sellerName||'',
+        fmtMoney(c.purchasePrice||0),fmtMoney(c.feeMin||0),fmtMoney(c.feeMax||0),
+        c.status||'',c.ts?new Date(c.ts).toLocaleDateString():'']);
+    } else { showToast('Unknown export type.','error'); return; }
+
+    const escape=v=>'"'+String(v||'').replace(/"/g,'""')+'"';
+    const csv=[headers,...rows].map(r=>r.map(escape).join(',')).join('
+');
+    const blob=new Blob([csv],{type:'text/csv;charset=utf-8;'});
+    const url=URL.createObjectURL(blob);
+    const a=document.createElement('a');
+    a.href=url;
+    a.download=`dealflow_${type}_${new Date().toISOString().slice(0,10)}.csv`;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+    showToast(`${type.charAt(0).toUpperCase()+type.slice(1)} exported!`, 'success');
+  } catch(e){
+    showToast('Export failed: '+e.message,'error');
+  }
+}
+
+/* ── Add Contract Manually ── */
+function openAddContractModal(){
+  // Populate seller select
+  const sel=document.getElementById('new-contract-seller-select');
+  if(sel){
+    sel.innerHTML='<option value="">— No linked seller —</option>';
+    STATE.sellers.filter(s=>['warm','done','negotiating'].includes(s.status)).forEach(s=>{
+      sel.innerHTML+=`<option value="${s.id}">${s.name}${s.address?' — '+s.address:''}</option>`;
+    });
+  }
+  // Auto-fill fee suggestion
+  const priceInput=document.getElementById('new-contract-price');
+  if(priceInput){
+    priceInput.oninput=function(){
+      const p=parseInt(this.value)||0;
+      if(p>0){
+        document.getElementById('new-contract-fee-min').value=Math.round(p*0.07);
+        document.getElementById('new-contract-fee-max').value=Math.round(p*0.14);
+      }
+    };
+  }
+  openModal('addContractModal');
+}
+
+async function addContractManually(){
+  const address   = document.getElementById('new-contract-address')?.value.trim();
+  const sellerId  = document.getElementById('new-contract-seller-select')?.value;
+  const sellerName= document.getElementById('new-contract-seller-name')?.value.trim();
+  const price     = parseInt(document.getElementById('new-contract-price')?.value);
+  const feeMin    = parseInt(document.getElementById('new-contract-fee-min')?.value)||0;
+  const feeMax    = parseInt(document.getElementById('new-contract-fee-max')?.value)||0;
+
+  if(!price||price<=0){ showToast('Enter a valid purchase price.','error'); return; }
+
+  let name = sellerName;
+  let linkedSeller = null;
+  if(sellerId){
+    linkedSeller = STATE.sellers.find(s=>s.id===sellerId);
+    name = linkedSeller?.name || sellerName;
+    if(address && linkedSeller) linkedSeller.address = address;
+  }
+
+  if(BACKEND.connected){
+    try {
+      const res=await fetch(`${BACKEND.url}/api/contracts`,{
+        method:'POST',headers:{'Content-Type':'application/json'},
+        body:JSON.stringify({sellerId:sellerId||null,address,sellerName:name,purchasePrice:price,feeMin,feeMax})
+      });
+      const data=await res.json();
+      if(data.error) throw new Error(data.error);
+      showToast('Contract added!','success');
+      closeModal('addContractModal');
+      setTimeout(pollBackend,500);
+    } catch(e){ showToast('Failed: '+e.message,'error'); }
+  } else {
+    // Demo mode
+    const contract={
+      id:uid(),sellerId:sellerId||null,address,sellerName:name,
+      purchasePrice:price,
+      feeMin:feeMin||Math.round(price*0.07),
+      feeMax:feeMax||Math.round(price*0.14),
+      status:'pending',assignedBuyerId:null,ts:Date.now()
+    };
+    STATE.contracts.push(contract);
+    if(linkedSeller){ linkedSeller.status='done'; linkedSeller.agreedPrice=price; }
+    addActivity(`Contract added: ${address||'Property'} at ${fmtMoney(price)}`,'green');
+    showToast('Contract added (demo mode)!','success');
+    closeModal('addContractModal');
+    updateDashboard();
+    renderContracts();
+    // Clear fields
+    ['new-contract-address','new-contract-seller-name','new-contract-price','new-contract-fee-min','new-contract-fee-max']
+      .forEach(id=>{const el=document.getElementById(id);if(el)el.value='';});
+  }
+}
+
+/* ── Dismiss Notification ── */
+async function dismissNotification(id){
+  if(!id){ return; }
+  // Remove locally
+  STATE.notifications=STATE.notifications.filter(n=>n.id!==id);
+  updateBadges();
+  renderNotifications();
+  // If backend connected, sync
+  if(BACKEND.connected){
+    try { await fetch(`${BACKEND.url}/api/notifications/${id}`,{method:'DELETE'}); } catch(e){}
+  }
+}
+
+async function dismissAllNotifications(){
+  STATE.notifications=[];
+  updateBadges();
+  renderNotifications();
+  if(BACKEND.connected){
+    try { await fetch(`${BACKEND.url}/api/notifications`,{method:'DELETE'}); } catch(e){}
+  }
+}
+
+/* ── Reinstate Removed Seller ── */
+async function reinstateSellerUI(id){
+  if(BACKEND.connected){
+    try {
+      const res=await fetch(`${BACKEND.url}/api/sellers/${id}/reinstate`,{method:'POST'});
+      const data=await res.json();
+      if(data.ok){ showToast('Seller reinstated!','success'); setTimeout(pollBackend,400); }
+      else showToast('Failed: '+(data.error||'unknown'),'error');
+    } catch(e){ showToast('Error: '+e.message,'error'); }
+  } else {
+    const s=STATE.sellers.find(x=>x.id===id);
+    if(s){
+      s.status='new'; s.removedAt=null; s.score=50; s.aiPaused=false; s.followups=0;
+      showToast('Seller reinstated (demo).','success');
+      renderProspects(); updateDashboard();
+    }
+  }
+}
+
+/* ── Auto-reconnect backend on disconnect ── */
+let _reconnectAttempts=0;
+function startAutoReconnect(){
+  if(!BACKEND.url||BACKEND.connected) return;
+  if(_reconnectAttempts>=5){ _reconnectAttempts=0; return; } // give up after 5 tries
+  _reconnectAttempts++;
+  setTimeout(async()=>{
+    if(BACKEND.connected) return;
+    try {
+      const res=await fetch(`${BACKEND.url}/api/health`,{signal:AbortSignal.timeout(3000)});
+      if(res.ok){
+        const data=await res.json();
+        BACKEND.connected=true; BACKEND.mode=data.mode||'demo';
+        _reconnectAttempts=0;
+        updateGWStatus(); startPolling();
+        showToast('Backend reconnected!','success');
+      } else { startAutoReconnect(); }
+    } catch(e){ startAutoReconnect(); }
+  }, Math.min(5000*_reconnectAttempts, 30000)); // exponential backoff up to 30s
+}
+
+// Hook into poll failure to trigger reconnect
+const _origPollBackend=pollBackend;
+async function pollBackend(){
+  if(!BACKEND.connected||!BACKEND.url) return;
+  try {
+    const res=await fetch(`${BACKEND.url}/api/state`,{signal:AbortSignal.timeout(4000)});
+    if(!res.ok){
+      BACKEND.connected=false; updateGWStatus();
+      startAutoReconnect();
+      return;
+    }
+    const data=await res.json();
+    syncFromBackend(data);
+    BACKEND.lastPoll=Date.now();
+    _reconnectAttempts=0;
+  } catch(e){
+    console.warn('[Poll]',e.message);
+    if(e.name==='AbortError'||e.name==='TypeError'){
+      BACKEND.connected=false; updateGWStatus();
+      startAutoReconnect();
+    }
+  }
+}
+
+/* ── Analytics fetch from backend when connected ── */
+async function fetchAndRefreshAnalytics(){
+  if(!BACKEND.connected) { initCharts(); return; }
+  try {
+    const res=await fetch(`${BACKEND.url}/api/analytics`,{signal:AbortSignal.timeout(5000)});
+    if(!res.ok){ initCharts(); return; }
+    const an=await res.json();
+    // Sync backend analytics into STATE for chart computation
+    // (charts still computed locally since STATE is synced via pollBackend)
+    initCharts();
+  } catch(e){ initCharts(); }
+}
+
+/* ── Override nav to always refresh charts ── */
+const _origNav=nav;
+function nav(p){
+  _origNav(p);
+  if(p==='analytics') fetchAndRefreshAnalytics();
+}
+
+/* ── Add "Clear All Notifications" button dynamically ── */
+function renderNotifications(){
+  const list=document.getElementById('notif-list');
+  if(!list) return;
+  if(!STATE.notifications.length){
+    list.innerHTML='<div style="font-size:13px;color:var(--text3);text-align:center;padding:40px">No notifications yet. Import leads to get started.</div>';
+    return;
+  }
+  list.innerHTML=`
+    <div style="display:flex;justify-content:flex-end;margin-bottom:10px">
+      <button class="btn btn-sm btn-danger" onclick="dismissAllNotifications()"><i class="ti ti-trash"></i> Clear All</button>
+    </div>`+
+  [...STATE.notifications].reverse().map((n) => `
+    <div class="notif-item notif-${n.type}" id="notif-${n.id||'x'}">
+      <div style="display:flex;justify-content:space-between;align-items:flex-start">
+        <div class="notif-title"><i class="ti ${n.type==='success'?'ti-check':n.type==='warning'?'ti-alert-circle':n.type==='danger'?'ti-user-x':'ti-info-circle'}"></i> ${n.title}</div>
+        <button class="btn btn-xs" onclick="dismissNotification('${n.id||''}')" style="padding:2px 6px;font-size:10px;opacity:0.6">✕</button>
+      </div>
+      <div class="notif-body">${n.body}</div>
+      ${n.action&&n.actionFn?`<div class="notif-actions"><button class="btn btn-sm" onclick="(STATE.notifications.find(x=>x.id==='${n.id}')?.actionFn||function(){})()">${n.action} →</button></div>`:''}
+    </div>`).join('');
+}
+
+/* ── Defensive null check for fmtPhone ── */
+const _origFmtPhone=fmtPhone;
+function fmtPhone(raw){
+  if(!raw||typeof raw!=='string') return raw||'';
+  return _origFmtPhone(raw);
+}
+
+/* ── Contracts page: use array OR object for STATE.contracts ── */
+const _origRenderContracts=renderContracts;
+function renderContracts(){
+  // Normalize contracts to array regardless of backend vs demo mode
+  if(STATE.contracts && !Array.isArray(STATE.contracts)){
+    STATE.contracts=Object.values(STATE.contracts);
+  }
+  _origRenderContracts();
+}
+
+/* ── populateBuyerContractSelect: handles array + object ── */
+const _origPopBCS=populateBuyerContractSelect;
+function populateBuyerContractSelect(){
+  if(STATE.contracts && !Array.isArray(STATE.contracts)){
+    STATE.contracts=Object.values(STATE.contracts);
+  }
+  _origPopBCS();
+}
+
+/* ── Add Contract to buyer contract dropdown on intake page ── */
+function refreshBuyerContractSelect(){
+  const contracts=Array.isArray(STATE.contracts)?STATE.contracts:Object.values(STATE.contracts||{});
+  const sel=document.getElementById('buyer-contract-select');
+  if(!sel) return;
+  sel.innerHTML=contracts.length
+    ?contracts.map(c=>`<option value="${c.id}">${c.address||'Property'} — ${fmtMoney(c.purchasePrice||0)}</option>`).join('')
+      +'<option value="">No specific contract (prospecting)</option>'
+    :'<option value="">No contracts yet — build seller pipeline first</option>';
+}
+
+/* ── Seller score in conversations better detail ── */
+const _origSelectConvo=selectConvo;
+function selectConvo(id,type){
+  _origSelectConvo(id,type);
+  // Refresh convo list to highlight selection
+  renderConvoList();
+}
+
+/* ── Ensure contracts sync works from backend (object → array) ── */
+const _origSyncFromBackend=syncFromBackend;
+function syncFromBackend(data){
+  _origSyncFromBackend(data);
+  // Keep contracts as array in STATE always
+  if(STATE.contracts && !Array.isArray(STATE.contracts)){
+    STATE.contracts=Object.values(STATE.contracts);
+  }
+  // Refresh buyer contract select if on intake page
+  refreshBuyerContractSelect();
+}
+
+/* ── Stage label helper for seller table ── */
+function getStageLabel(seller){
+  if(seller.status==='new') return seller.followups>1?`Follow-up ${seller.followups}`:'Cold Outreach';
+  if(seller.status==='warm') return '⚡ Set Price Range';
+  if(seller.status==='negotiating') return `🤝 Negotiating${seller.lastAiOffer?' @ '+fmtMoney(seller.lastAiOffer):''}`;
+  if(seller.status==='done') return seller.contractSent?'✅ Contract Sent':'📄 Send Contract';
+  if(seller.status==='cold') return 'Max Follow-ups';
+  if(seller.status==='lost') return 'Not Interested';
+  return '—';
+}
+
+/* ── Enhanced renderProspects with stage column ── */
+const _origRenderProspects=renderProspects;
+function renderProspects(){
+  const all=STATE.sellers;
+  const active=all.filter(s=>s.status!=='lost');
+  const flagged=all.filter(s=>s.status==='warm');
+  const removed=all.filter(s=>s.status==='lost');
+  document.getElementById('tc-all').textContent=active.length;
+  document.getElementById('tc-flagged').textContent=flagged.length;
+  document.getElementById('tc-removed').textContent=removed.length;
+
+  document.getElementById('seller-table-body').innerHTML=active.map(s=>`
+    <tr>
+      <td><div class="score-ring ${scoreClass(s.score)}">${s.score}</div></td>
+      <td><div style="font-weight:500">${s.name||'Unknown'}</div><div style="font-size:10px;color:var(--text3)">${s.phone||''}</div></td>
+      <td style="font-size:11px;color:var(--text2)">${s.address||'—'}</td>
+      <td><span class="badge ${statusMap[s.status]||'badge-cold'}">${statusLabel[s.status]||s.status}</span></td>
+      <td style="font-size:11px;color:var(--text2)">${getStageLabel(s)}</td>
+      <td style="font-size:11px;color:var(--text3)">${s.msgs&&s.msgs.length?timeAgo(s.msgs.slice(-1)[0].ts):'—'}</td>
+      <td><div style="display:flex;gap:5px;flex-wrap:wrap">
+        <button class="btn btn-xs" onclick="selectConvo('${s.id}','seller');nav('conversations')" title="View Conversation"><i class="ti ti-message-2"></i></button>
+        ${s.status==='warm'?`<button class="btn btn-xs btn-success" onclick="openPriceModalForSeller('${s.id}')" title="Set Price Range"><i class="ti ti-currency-dollar"></i> Price</button>`:''}
+        ${s.status==='negotiating'?`<span class="badge badge-negotiating" style="font-size:9px">AI Negotiating</span>`:''}
+        ${s.status==='done'&&!s.contractSent?`<button class="btn btn-xs btn-primary" onclick="openContractModal('${s.id}')" title="Send Contract"><i class="ti ti-file-text"></i> Contract</button>`:''}
+        ${s.status==='done'&&s.contractSent?`<span style="font-size:11px;color:var(--green)"><i class="ti ti-check"></i> Sent</span>`:''}
+        ${s.status==='lost'?`<button class="btn btn-xs" onclick="reinstateSellerUI('${s.id}')" title="Reinstate"><i class="ti ti-refresh"></i></button>`:''}
+      </div></td>
+    </tr>`).join('')||'<tr><td colspan="7" style="text-align:center;color:var(--text3);padding:20px">No sellers yet. Import leads to get started.</td></tr>';
+
+  document.getElementById('flagged-list').innerHTML=flagged.length?flagged.map(s=>`
+    <div style="display:flex;align-items:center;justify-content:space-between;padding:11px 0;border-bottom:1px solid var(--border)">
+      <div>
+        <div style="font-size:12px;font-weight:500">${s.name} — ${s.address||'No address'}</div>
+        <div style="font-size:11px;color:var(--text2);margin-top:2px">${(s.msgs||[]).slice(-1)[0]?.text?.slice(0,80)||'—'}${(s.msgs||[]).slice(-1)[0]?.text?.length>80?'...':''}</div>
+      </div>
+      <button class="btn btn-sm btn-success" onclick="openPriceModalForSeller('${s.id}')"><i class="ti ti-currency-dollar"></i> Set Range</button>
+    </div>`).join(''):'<div style="color:var(--text3);font-size:12px;padding:12px 0">No leads awaiting price range.</div>';
+
+  document.getElementById('removed-list').innerHTML=removed.length?removed.map(s=>`
+    <div style="display:flex;justify-content:space-between;align-items:center;padding:9px 0;border-bottom:1px solid var(--border);font-size:12px">
+      <div><span style="font-weight:500">${s.name}</span><span style="color:var(--text3)"> — ${s.address||'No address'}</span></div>
+      <div style="display:flex;align-items:center;gap:8px">
+        <span style="font-size:11px;color:var(--text3)">${s.removedAt?timeAgo(s.removedAt):'—'}</span>
+        <button class="btn btn-xs" onclick="reinstateSellerUI('${s.id}')"><i class="ti ti-refresh"></i> Reinstate</button>
+      </div>
+    </div>`).join(''):'<div style="color:var(--text3);font-size:12px;padding:8px 0">No removed leads.</div>';
+}
+
+/* ── Contracts page: also show pitch buyer button ── */
+const _origRenderContracts2=_origRenderContracts;
+
+/* ── Dashboard: fix activity color rendering ── */
+const _origUpdateDashboard=updateDashboard;
+function updateDashboard(){
+  _origUpdateDashboard();
+  // Re-render activity with fixed colors
+  const acts=STATE.activity||[];
+  const actEl=document.getElementById('dash-activity');
+  if(actEl&&acts.length){
+    actEl.innerHTML=acts.slice(-6).reverse().map(a=>`
+      <div class="activity-item">
+        <div class="act-icon" style="${activityColorStyle(a.color||'blue')}"><i class="ti ti-circle-dot"></i></div>
+        <div><div class="act-text">${a.text}</div><div class="act-time">${timeAgo(a.ts||Date.now())}</div></div>
+      </div>`).join('');
+  }
+}
+
+/* ── Onload: refresh buyer contract select ── */
+document.addEventListener('DOMContentLoaded',()=>{
+  refreshBuyerContractSelect();
+});
+</script>
+</body>
+</html>
